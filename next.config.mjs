@@ -7,10 +7,8 @@ const nextConfig = {
     unoptimized: true,
   },
   output: 'export',
-  // Don't fail the build if generateStaticParams fails
-  experimental: {
-    // This allows the build to continue if some paths fail
-  },
+  // Force revalidation
+  staticPageGenerationTimeout: 120,
 }
 
 export default nextConfig
