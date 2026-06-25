@@ -1,5 +1,5 @@
 // lib/api.ts
-const API_BASE = 'https://test-sandbox-api.onrender.com/api';
+const API_BASE = 'https://ecommerce-frontend-api.onrender.com/api';
 
 export interface User {
   id: number;
