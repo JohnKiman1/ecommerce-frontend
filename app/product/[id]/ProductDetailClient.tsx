@@ -9,6 +9,7 @@ import { ProductCard } from '@/components/ProductCard'
 import { useCart } from '@/contexts/CartContext'
 import { useNotification } from '@/contexts/NotificationContext'
 import { api, Product } from '@/lib/api'
+import { getProductById, MOCK_PRODUCTS } from '@/lib/mockData'
 
 export default function ProductDetailClient({ productId }: { productId: string }) {
   const router = useRouter()
@@ -24,7 +25,24 @@ export default function ProductDetailClient({ productId }: { productId: string }
     const fetchProduct = async () => {
       try {
         setLoading(true)
-        const data = await api.getProduct(parseInt(productId))
+        
+        // ✅ Convert 'p16' to 16, or use as-is if it's a number
+        let numericId: number
+        if (productId.startsWith('p')) {
+          numericId = parseInt(productId.substring(1))
+        } else {
+          numericId = parseInt(productId)
+        }
+        
+        // Check if the ID is valid
+        if (isNaN(numericId)) {
+          console.error('Invalid product ID:', productId)
+          setLoading(false)
+          return
+        }
+        
+        // Fetch from API
+        const data = await api.getProduct(numericId)
         setProduct(data)
         setSelectedSize(data.sizes?.[0])
         
@@ -34,8 +52,52 @@ export default function ProductDetailClient({ productId }: { productId: string }
           (p) => p.category === data.category && p.id !== data.id
         ).slice(0, 4)
         setRelatedProducts(related)
+        
       } catch (error) {
-        console.error('Failed to fetch product:', error)
+        console.error('Failed to fetch product from API:', error)
+        
+        // ✅ Fallback to mock data if API fails
+        const mockProduct = getProductById(productId)
+        if (mockProduct) {
+          // Convert mock product to API product format
+          const convertedProduct: Product = {
+            id: parseInt(mockProduct.id.replace('p', '')),
+            name: mockProduct.name,
+            description: mockProduct.description,
+            price: mockProduct.price,
+            category: mockProduct.category,
+            image: mockProduct.image,
+            rating: mockProduct.rating,
+            reviews: mockProduct.reviews,
+            in_stock: mockProduct.inStock,
+            sizes: mockProduct.sizes,
+            created_at: new Date().toISOString(),
+          }
+          setProduct(convertedProduct)
+          setSelectedSize(convertedProduct.sizes?.[0])
+          
+          // Also fetch related products from mock data
+          const allMockProducts = MOCK_PRODUCTS
+          const related = allMockProducts
+            .filter((p) => p.category === mockProduct.category && p.id !== mockProduct.id)
+            .slice(0, 4)
+            .map((p) => ({
+              id: parseInt(p.id.replace('p', '')),
+              name: p.name,
+              description: p.description,
+              price: p.price,
+              category: p.category,
+              image: p.image,
+              rating: p.rating,
+              reviews: p.reviews,
+              in_stock: p.inStock,
+              sizes: p.sizes,
+              created_at: new Date().toISOString(),
+            }))
+          setRelatedProducts(related)
+        } else {
+          console.error('Product not found in mock data:', productId)
+        }
       } finally {
         setLoading(false)
       }
@@ -60,6 +122,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-gray-900">Product not found</h1>
+          <p className="text-gray-600">The product you're looking for doesn't exist.</p>
           <button
             onClick={() => router.push('/shop')}
             className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold transition-colors"
