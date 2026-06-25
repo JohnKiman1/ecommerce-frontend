@@ -1,12 +1,13 @@
+// app/shop/ShopContent.tsx
 'use client'
 
-import { useState, useMemo, useEffect, Suspense } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { ProductCard } from '@/components/ProductCard'
 import { api, Product } from '@/lib/api'
 import { X, Loader2 } from 'lucide-react'
 
-// Categories for filtering
+// Categories from your book data
 const PRODUCT_CATEGORIES = [
   { id: 'clothing', name: 'Clothing', count: 0 },
   { id: 'accessories', name: 'Accessories', count: 0 },
@@ -22,8 +23,7 @@ const PRICE_RANGES = [
   { id: 'over-100', name: 'Over $100', min: 100, max: Infinity },
 ]
 
-// Separate component that uses useSearchParams
-function ShopContent() {
+export default function ShopContent() {
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -154,100 +154,104 @@ function ShopContent() {
           {/* Sidebar */}
           <aside className="md:col-span-1">
             <div className="space-y-6 sticky top-20">
-              {/* Search */}
-              <div>
-                <label htmlFor="search-input" className="block text-sm font-semibold text-gray-900 mb-3">
-                  Search
-                </label>
-                <input
-                  id="search-input"
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                />
-              </div>
+    {/* Search */}
+    <div>
+    <label htmlFor="search-input" className="block text-sm font-semibold text-gray-900 mb-3">
+        Search
+    </label>
+    <input
+        id="search-input"
+        type="text"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        placeholder="Search products..."
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+    />
+    </div>
 
-              {/* Categories */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Category</label>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setSelectedCategory('')}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      !selectedCategory
-                        ? 'bg-blue-600 text-white'
-                        : 'hover:bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    All Products ({products.length})
-                  </button>
-                  {categoriesWithCounts.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => setSelectedCategory(cat.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedCategory === cat.id
-                          ? 'bg-blue-600 text-white'
-                          : 'hover:bg-gray-100 text-gray-900'
-                      }`}
-                    >
-                      <span className="flex items-center justify-between">
-                        {cat.name}
-                        <span className="text-xs opacity-75">{cat.count}</span>
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
+    {/* Categories */}
+    <div>
+    <fieldset>
+        <legend className="block text-sm font-semibold text-gray-900 mb-3">Category</legend>
+        <div className="space-y-2">
+        <button
+            onClick={() => setSelectedCategory('')}
+            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+            !selectedCategory
+                ? 'bg-blue-600 text-white'
+                : 'hover:bg-gray-100 text-gray-900'
+            }`}
+        >
+            All Products ({products.length})
+        </button>
+        {categoriesWithCounts.map((cat) => (
+            <button
+            key={cat.id}
+            onClick={() => setSelectedCategory(cat.id)}
+            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                selectedCategory === cat.id
+                ? 'bg-blue-600 text-white'
+                : 'hover:bg-gray-100 text-gray-900'
+            }`}
+            >
+            <span className="flex items-center justify-between">
+                {cat.name}
+                <span className="text-xs opacity-75">{cat.count}</span>
+            </span>
+            </button>
+        ))}
+        </div>
+    </fieldset>
+    </div>
 
-              {/* Price */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Price</label>
-                <div className="space-y-2">
-                  <button
-                    onClick={() => setSelectedPriceRange('')}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      !selectedPriceRange ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-900'
-                    }`}
-                  >
-                    All Prices
-                  </button>
-                  {PRICE_RANGES.map((range) => (
-                    <button
-                      key={range.id}
-                      onClick={() => setSelectedPriceRange(range.id)}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedPriceRange === range.id
-                          ? 'bg-blue-600 text-white'
-                          : 'hover:bg-gray-100 text-gray-900'
-                      }`}
-                    >
-                      {range.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
+    {/* Price */}
+    <div>
+    <fieldset>
+        <legend className="block text-sm font-semibold text-gray-900 mb-3">Price</legend>
+        <div className="space-y-2">
+        <button
+            onClick={() => setSelectedPriceRange('')}
+            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+            !selectedPriceRange ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-900'
+            }`}
+        >
+            All Prices
+        </button>
+        {PRICE_RANGES.map((range) => (
+            <button
+            key={range.id}
+            onClick={() => setSelectedPriceRange(range.id)}
+            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                selectedPriceRange === range.id
+                ? 'bg-blue-600 text-white'
+                : 'hover:bg-gray-100 text-gray-900'
+            }`}
+            >
+            {range.name}
+            </button>
+        ))}
+        </div>
+    </fieldset>
+    </div>
 
-              {/* Sort - Fixed: Added label and title for accessibility */}
-              <div>
-                <label htmlFor="sort-select" className="block text-sm font-semibold text-gray-900 mb-3">
-                  Sort By
-                </label>
-                <select
-                  id="sort-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  title="Sort products by"
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
-                >
-                  <option value="newest">Newest</option>
-                  <option value="price-low">Price: Low to High</option>
-                  <option value="price-high">Price: High to Low</option>
-                  <option value="rating">Highest Rated</option>
-                </select>
-              </div>
+    {/* Sort */}
+    <div>
+    <label htmlFor="sort-select" className="block text-sm font-semibold text-gray-900 mb-3">
+        Sort By
+    </label>
+    <select
+        id="sort-select"
+        aria-label="Sort products by"
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+    >
+        <option value="newest">Newest</option>
+        <option value="price-low">Price: Low to High</option>
+        <option value="price-high">Price: High to Low</option>
+        <option value="rating">Highest Rated</option>
+    </select>
+    </div>
 
               {/* Clear Filters */}
               {hasActiveFilters && (
@@ -300,21 +304,5 @@ function ShopContent() {
         </div>
       </div>
     </div>
-  )
-}
-
-// Main page component with Suspense boundary
-export default function ShopPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-gray-600">Loading shop...</p>
-        </div>
-      </div>
-    }>
-      <ShopContent />
-    </Suspense>
   )
 }
