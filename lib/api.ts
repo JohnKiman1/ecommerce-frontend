@@ -94,6 +94,45 @@ export const api = {
     return response.json();
   },
 
+  // ✅ NEW: Create product
+  createProduct: async (product: any): Promise<Product> => {
+    const response = await fetch(`${API_BASE}/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create product');
+    }
+    return response.json();
+  },
+
+  // ✅ NEW: Update product
+  updateProduct: async (id: number, product: any): Promise<Product> => {
+    const response = await fetch(`${API_BASE}/products/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update product');
+    }
+    return response.json();
+  },
+
+  // ✅ NEW: Delete product
+  deleteProduct: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_BASE}/products/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete product');
+    }
+  },
+
   // Cart
   getCart: async (userId: number): Promise<CartItem[]> => {
     const response = await fetch(`${API_BASE}/cart/${userId}`);

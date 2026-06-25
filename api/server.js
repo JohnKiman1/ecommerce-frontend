@@ -172,6 +172,121 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
+// ✅ ADD: POST - Create a new product
+app.post('/api/products', async (req, res) => {
+  try {
+    const { name, description, price, category, image, in_stock, sizes, rating, reviews } = req.body;
+    
+    console.log('📝 Creating new product:', name);
+    
+    // Validate required fields
+    if (!name || price === undefined || price === null) {
+      return res.status(400).json({ error: 'Name and price are required' });
+    }
+    
+    const { data, error } = await supabase
+      .from('products')
+      .insert([{
+        name,
+        description: description || '',
+        price: parseFloat(price),
+        category: category || 'clothing',
+        image: image || '/images/product-1.png',
+        in_stock: in_stock !== undefined ? in_stock : true,
+        sizes: sizes || ['S', 'M', 'L', 'XL'],
+        rating: rating || 0,
+        reviews: reviews || 0,
+      }])
+      .select();
+    
+    if (error) throw error;
+    
+    console.log('✅ Product created:', data[0].name);
+    res.status(201).json(data[0]);
+  } catch (error) {
+    console.error('❌ Create product error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ✅ ADD: PUT - Update a product
+app.put('/api/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, category, image, in_stock, sizes, rating, reviews } = req.body;
+    
+    console.log('📝 Updating product:', id);
+    
+    // Check if product exists
+    const { data: existing, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    const { data, error } = await supabase
+      .from('products')
+      .update({
+        name,
+        description: description || '',
+        price: parseFloat(price),
+        category: category || 'clothing',
+        image: image || '/images/product-1.png',
+        in_stock: in_stock !== undefined ? in_stock : true,
+        sizes: sizes || ['S', 'M', 'L', 'XL'],
+        rating: rating || 0,
+        reviews: reviews || 0,
+      })
+      .eq('id', id)
+      .select();
+    
+    if (error) throw error;
+    
+    console.log('✅ Product updated:', data[0].name);
+    res.json(data[0]);
+  } catch (error) {
+    console.error('❌ Update product error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ✅ ADD: DELETE - Delete a product
+app.delete('/api/products/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('🗑️ Deleting product:', id);
+    
+    // Check if product exists
+    const { data: existing, error: checkError } = await supabase
+      .from('products')
+      .select('id')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    console.log('✅ Product deleted:', id);
+    res.json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('❌ Delete product error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET product reviews
 app.get('/api/products/:id/reviews', async (req, res) => {
   try {
@@ -512,8 +627,8 @@ app.use((req, res, next) => {
 // ============================================
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🚀 Test Sandbox API running on port ${PORT}`);
-  console.log('📚 /api/products - Product CRUD');
+  console.log(`🚀 E-commerce API running on port ${PORT}`);
+  console.log('📚 /api/products - Product CRUD (GET, POST, PUT, DELETE)');
   console.log('🛒 /api/cart - Cart operations');
   console.log('📦 /api/orders - Order operations');
   console.log('👤 /api/profile - User profile');
