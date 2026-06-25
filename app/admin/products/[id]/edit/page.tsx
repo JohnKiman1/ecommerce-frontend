@@ -1,17 +1,18 @@
 // app/admin/products/[id]/edit/page.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, use } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
 import ImageUpload from '@/components/ImageUpload'
-import { Package, ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Package } from 'lucide-react'
 
-export default function EditProduct({ params }: { params: { id: string } }) {
+export default function EditProduct({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()
   const { showToast } = useToast()
-  const id = parseInt(params.id)
+  const { id: idParam } = use(params)
+  const id = parseInt(idParam)
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -39,7 +40,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         description: product.description,
         price: product.price.toString(),
         category: product.category,
-        image: product.image,
+        image: product.image || '',
         in_stock: product.in_stock,
         sizes: product.sizes || [],
       })
@@ -55,7 +56,12 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Validate price
+    if (!formData.name.trim()) {
+      setError('Product name is required')
+      showToast('Product name is required', 'error')
+      return
+    }
+
     if (!formData.price || parseFloat(formData.price) <= 0) {
       setError('Please enter a valid price')
       showToast('Please enter a valid price', 'error')

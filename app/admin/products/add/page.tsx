@@ -22,7 +22,7 @@ export default function AddProduct() {
     description: '',
     price: '',
     category: 'clothing',
-    image: '/images/product-1.png',
+    image: '',
     in_stock: true,
     sizes: ['S', 'M', 'L', 'XL'],
   })
@@ -59,8 +59,50 @@ export default function AddProduct() {
     }
   }
 
-  const handleFile = (file: File) => {
-    // Validate file size (5MB max)
+  // ✅ Compress image before storing
+  const compressImage = (file: File, maxWidth = 800, maxHeight = 800, quality = 0.7): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.readAsDataURL(file)
+      reader.onload = (event) => {
+        const img = new Image()
+        img.src = event.target?.result as string
+        img.onload = () => {
+          let width = img.width
+          let height = img.height
+          
+          // Calculate new dimensions
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width
+            width = maxWidth
+          }
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height
+            height = maxHeight
+          }
+          
+          const canvas = document.createElement('canvas')
+          canvas.width = width
+          canvas.height = height
+          
+          const ctx = canvas.getContext('2d')
+          if (!ctx) {
+            reject(new Error('Could not get canvas context'))
+            return
+          }
+          
+          ctx.drawImage(img, 0, 0, width, height)
+          const dataUrl = canvas.toDataURL('image/jpeg', quality)
+          resolve(dataUrl)
+        }
+        img.onerror = () => reject(new Error('Failed to load image'))
+      }
+      reader.onerror = () => reject(new Error('Failed to read file'))
+    })
+  }
+
+  const handleFile = async (file: File) => {
+    // Validate file size (5MB max for original file)
     if (file.size > 5 * 1024 * 1024) {
       setError('Image size must be less than 5MB')
       showToast('Image size must be less than 5MB', 'error')
@@ -68,19 +110,23 @@ export default function AddProduct() {
     }
 
     setImageFile(file)
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string)
-      setFormData({ ...formData, image: URL.createObjectURL(file) })
-      showToast('Image uploaded successfully!', 'success')
+    
+    try {
+      // ✅ Compress the image to reduce size
+      const compressedDataUrl = await compressImage(file, 800, 800, 0.7)
+      setImagePreview(compressedDataUrl)
+      setFormData({ ...formData, image: compressedDataUrl })
+      showToast('Image uploaded and compressed successfully!', 'success')
+    } catch (err) {
+      setError('Failed to process image')
+      showToast('Failed to process image', 'error')
     }
-    reader.readAsDataURL(file)
   }
 
   const removeImage = () => {
     setImagePreview(null)
     setImageFile(null)
-    setFormData({ ...formData, image: '/images/product-1.png' })
+    setFormData({ ...formData, image: '' })
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
@@ -186,7 +232,7 @@ export default function AddProduct() {
                   Drag and drop an image here, or click to select
                 </p>
                 <p className="text-xs text-gray-500">
-                  Supports JPG, PNG, GIF up to 5MB
+                  Supports JPG, PNG, GIF up to 5MB (will be compressed)
                 </p>
               </div>
             )}
@@ -202,7 +248,7 @@ export default function AddProduct() {
             />
           </div>
           {imagePreview && (
-            <p className="text-xs text-green-600 mt-1">✓ Image uploaded successfully</p>
+            <p className="text-xs text-green-600 mt-1">✓ Image uploaded and compressed</p>
           )}
         </div>
 
