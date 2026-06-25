@@ -1,7 +1,7 @@
 // components/ImageUpload.tsx
 'use client'
 
-import { useState, useRef, DragEvent } from 'react'
+import { useState, useRef, DragEvent, useEffect } from 'react'
 import { X, Upload } from 'lucide-react'
 
 interface ImageUploadProps {
@@ -18,9 +18,18 @@ export default function ImageUpload({
   required = false 
 }: ImageUploadProps) {
   const [dragActive, setDragActive] = useState(false)
-  const [preview, setPreview] = useState<string | null>(value || null)
+  const [preview, setPreview] = useState<string | null>(null)
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Set preview when value changes (for edit mode)
+  useEffect(() => {
+    if (value && value.startsWith('http')) {
+      setPreview(value)
+    } else if (value && value.startsWith('data:image')) {
+      setPreview(value)
+    }
+  }, [value])
 
   const handleDrag = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -52,6 +61,12 @@ export default function ImageUpload({
   }
 
   const processFile = (file: File) => {
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Image size must be less than 5MB')
+      return
+    }
+
     setFile(file)
     const reader = new FileReader()
     reader.onloadend = () => {
@@ -148,9 +163,7 @@ export default function ImageUpload({
         />
       </div>
       {preview && (
-        <p className="text-xs text-gray-500 mt-1">
-          Image uploaded successfully. Click the X to remove.
-        </p>
+        <p className="text-xs text-green-600 mt-1">✓ Image loaded</p>
       )}
     </div>
   )

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { api, Product } from '@/lib/api'
 import { useToast } from '@/contexts/ToastContext'
-import { Pencil, Trash2, Plus, Search, Package, AlertCircle } from 'lucide-react'
+import { Pencil, Trash2, Plus, Search, Package, AlertCircle, X } from 'lucide-react'
 
 export default function AdminProducts() {
   const { showToast } = useToast()
@@ -15,6 +15,11 @@ export default function AdminProducts() {
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [deletingId, setDeletingId] = useState<number | null>(null)
+  
+  // Confirmation dialog state
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [productToDelete, setProductToDelete] = useState<number | null>(null)
+  const [productNameToDelete, setProductNameToDelete] = useState('')
 
   useEffect(() => {
     fetchProducts()
@@ -50,18 +55,37 @@ export default function AdminProducts() {
     }
   }
 
-  const handleDelete = async (id: number) => {
-    if (!confirm('Are you sure you want to delete this product?')) return
+  // Open confirmation dialog
+  const confirmDelete = (id: number, name: string) => {
+    setProductToDelete(id)
+    setProductNameToDelete(name)
+    setShowConfirmDialog(true)
+  }
+
+  // Close confirmation dialog
+  const cancelDelete = () => {
+    setShowConfirmDialog(false)
+    setProductToDelete(null)
+    setProductNameToDelete('')
+  }
+
+  // Execute delete
+  const handleDelete = async () => {
+    if (!productToDelete) return
     
-    setDeletingId(id)
+    setDeletingId(productToDelete)
+    setShowConfirmDialog(false)
+    
     try {
-      await api.deleteProduct(id)
-      setProducts(products.filter((p) => p.id !== id))
-      showToast('Product deleted successfully!', 'success')
+      await api.deleteProduct(productToDelete)
+      setProducts(products.filter((p) => p.id !== productToDelete))
+      showToast(`"${productNameToDelete}" deleted successfully!`, 'success')
     } catch (err) {
       showToast('Failed to delete product. Please try again.', 'error')
     } finally {
       setDeletingId(null)
+      setProductToDelete(null)
+      setProductNameToDelete('')
     }
   }
 
@@ -75,6 +99,49 @@ export default function AdminProducts() {
 
   return (
     <div>
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slide-in">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Confirm Delete</h3>
+              <button
+                onClick={cancelDelete}
+                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                aria-label="Close"
+              >
+                <X className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-gray-600">
+                Are you sure you want to delete <strong>"{productNameToDelete}"</strong>?
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelDelete}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Delete Product
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Products</h1>
@@ -155,6 +222,7 @@ export default function AdminProducts() {
         </div>
       )}
 
+      {/* Products Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -193,7 +261,7 @@ export default function AdminProducts() {
                         <Pencil className="h-4 w-4" />
                       </Link>
                       <button
-                        onClick={() => handleDelete(product.id)}
+                        onClick={() => confirmDelete(product.id, product.name)}
                         disabled={deletingId === product.id}
                         className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
                         aria-label={`Delete ${product.name}`}
