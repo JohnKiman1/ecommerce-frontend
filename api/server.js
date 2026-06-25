@@ -1,0 +1,524 @@
+const express = require('express');
+const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
+
+const app = express();
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+app.use(express.json());
+
+// 🔑 SUPABASE CREDENTIALS
+const supabaseUrl = 'https://ecmcdpozacymtkvaailv.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjbWNkcG96YWN5bXRrdmFhaWx2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIzMzk0NDQsImV4cCI6MjA5NzkxNTQ0NH0.cNQpN1QTXeY5aPHG42l9XNnujPKONEgyCKTrgZz_8ew';
+
+const supabase = createClient(supabaseUrl, supabaseKey, {
+  db: { schema: 'public' }
+});
+
+// ============================================
+// AUTH ENDPOINTS
+// ============================================
+
+// LOGIN
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    console.log('📝 Login attempt:', username);
+    
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username)
+      .single();
+    
+    if (error || !data) {
+      console.log('❌ User not found:', username);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    if (data.password !== password) {
+      console.log('❌ Password mismatch:', username);
+      return res.status(401).json({ error: 'Invalid credentials' });
+    }
+    
+    if (data.role === 'locked') {
+      return res.status(403).json({ error: 'Account locked. Contact support.' });
+    }
+    
+    console.log('✅ Login successful:', username);
+    
+    res.json({
+      message: 'Login successful',
+      user: { id: data.id, username: data.username, role: data.role }
+    });
+  } catch (error) {
+    console.error('💥 Login error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// REGISTER
+app.post('/api/register', async (req, res) => {
+  try {
+    const { username, password, email, name } = req.body;
+    
+    console.log('📝 Registration attempt:', username);
+    
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+    
+    // Check if user exists
+    const { data: existing } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username)
+      .single();
+    
+    if (existing) {
+      return res.status(409).json({ error: 'Username already exists' });
+    }
+    
+    const { data, error } = await supabase
+      .from('users')
+      .insert([{ username, password, email, name, role: 'viewer' }])
+      .select();
+    
+    if (error) throw error;
+    
+    console.log('✅ Registration successful:', username);
+    
+    res.status(201).json({
+      message: 'Registration successful',
+      user: { id: data[0].id, username: data[0].username, role: data[0].role }
+    });
+  } catch (error) {
+    console.error('💥 Registration error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// PRODUCT ENDPOINTS
+// ============================================
+
+// GET all products
+app.get('/api/products', async (req, res) => {
+  try {
+    console.log('📚 Fetching products...');
+    
+    const { category, minPrice, maxPrice, search, sortBy, sortOrder } = req.query;
+    
+    let query = supabase.from('products').select('*');
+    
+    // Category filter
+    if (category) {
+      query = query.eq('category', category);
+    }
+    
+    // Price filter
+    if (minPrice) {
+      query = query.gte('price', parseFloat(minPrice));
+    }
+    if (maxPrice) {
+      query = query.lte('price', parseFloat(maxPrice));
+    }
+    
+    // Search filter
+    if (search) {
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+    }
+    
+    // Sorting
+    if (sortBy) {
+      const order = sortOrder === 'desc' ? 'desc' : 'asc';
+      query = query.order(sortBy, { ascending: order === 'asc' });
+    } else {
+      query = query.order('id', { ascending: true });
+    }
+    
+    const { data, error } = await query;
+    
+    if (error) throw error;
+    
+    console.log(`✅ Products found: ${data ? data.length : 0}`);
+    res.json(data || []);
+  } catch (error) {
+    console.error('❌ Products error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET single product
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', req.params.id)
+      .single();
+    
+    if (error || !data) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+    
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET product reviews
+app.get('/api/products/:id/reviews', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select(`
+        *,
+        users:user_id (username)
+      `)
+      .eq('product_id', req.params.id)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// POST product review
+app.post('/api/products/:id/reviews', async (req, res) => {
+  try {
+    const { user_id, rating, comment } = req.body;
+    const productId = req.params.id;
+    
+    if (!user_id || !rating) {
+      return res.status(400).json({ error: 'User ID and rating are required' });
+    }
+    
+    // Insert review
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert([{ product_id: productId, user_id, rating, comment }])
+      .select();
+    
+    if (error) throw error;
+    
+    // Update product rating and review count
+    const { data: reviews } = await supabase
+      .from('reviews')
+      .select('rating')
+      .eq('product_id', productId);
+    
+    if (reviews && reviews.length > 0) {
+      const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+      await supabase
+        .from('products')
+        .update({ 
+          rating: Math.round(avgRating * 10) / 10,
+          reviews: reviews.length 
+        })
+        .eq('id', productId);
+    }
+    
+    res.status(201).json(data[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// CART ENDPOINTS
+// ============================================
+
+// GET cart
+app.get('/api/cart/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('cart_items')
+      .select(`
+        *,
+        products (*)
+      `)
+      .eq('user_id', req.params.userId);
+    
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ADD to cart
+app.post('/api/cart', async (req, res) => {
+  try {
+    const { user_id, product_id, quantity, size } = req.body;
+    
+    // Check if item already exists
+    const { data: existing } = await supabase
+      .from('cart_items')
+      .select('id, quantity')
+      .eq('user_id', user_id)
+      .eq('product_id', product_id)
+      .maybeSingle();
+    
+    if (existing) {
+      // Update quantity
+      const { data, error } = await supabase
+        .from('cart_items')
+        .update({ quantity: existing.quantity + (quantity || 1) })
+        .eq('id', existing.id)
+        .select();
+      
+      if (error) throw error;
+      res.json(data[0]);
+    } else {
+      // Insert new item
+      const { data, error } = await supabase
+        .from('cart_items')
+        .insert([{ user_id, product_id, quantity: quantity || 1, size }])
+        .select();
+      
+      if (error) throw error;
+      res.status(201).json(data[0]);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE cart item
+app.put('/api/cart/:id', async (req, res) => {
+  try {
+    const { quantity } = req.body;
+    
+    if (quantity <= 0) {
+      // Delete if quantity is 0
+      const { error } = await supabase
+        .from('cart_items')
+        .delete()
+        .eq('id', req.params.id);
+      
+      if (error) throw error;
+      return res.json({ message: 'Item removed from cart' });
+    }
+    
+    const { data, error } = await supabase
+      .from('cart_items')
+      .update({ quantity })
+      .eq('id', req.params.id)
+      .select();
+    
+    if (error) throw error;
+    res.json(data[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// REMOVE from cart
+app.delete('/api/cart/:id', async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('cart_items')
+      .delete()
+      .eq('id', req.params.id);
+    
+    if (error) throw error;
+    res.json({ message: 'Item removed from cart' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// CLEAR cart
+app.delete('/api/cart/user/:userId', async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from('cart_items')
+      .delete()
+      .eq('user_id', req.params.userId);
+    
+    if (error) throw error;
+    res.json({ message: 'Cart cleared' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// ORDER ENDPOINTS
+// ============================================
+
+// CREATE order
+app.post('/api/orders', async (req, res) => {
+  try {
+    const { user_id, items, subtotal, shipping, tax, total, shipping_address, payment_method } = req.body;
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([{
+        user_id,
+        subtotal,
+        shipping,
+        tax,
+        total,
+        shipping_address,
+        payment_method,
+        status: 'pending'
+      }])
+      .select();
+    
+    if (error) throw error;
+    
+    // Clear cart after order
+    await supabase
+      .from('cart_items')
+      .delete()
+      .eq('user_id', user_id);
+    
+    res.status(201).json(data[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET user orders
+app.get('/api/orders/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', req.params.userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// USER PROFILE ENDPOINTS
+// ============================================
+
+// GET user profile
+app.get('/api/profile/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username, email, name, role, created_at')
+      .eq('id', req.params.userId)
+      .single();
+    
+    if (error || !data) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE user profile
+app.put('/api/profile/:userId', async (req, res) => {
+  try {
+    const { email, name } = req.body;
+    
+    const { data, error } = await supabase
+      .from('users')
+      .update({ email, name })
+      .eq('id', req.params.userId)
+      .select();
+    
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(data[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// RESET DATABASE (for testing)
+// ============================================
+app.post('/api/reset', async (req, res) => {
+  try {
+    console.log('🔄 Resetting database...');
+    
+    // Clear all tables
+    await supabase.from('cart_items').delete().neq('id', 0);
+    await supabase.from('reviews').delete().neq('id', 0);
+    await supabase.from('orders').delete().neq('id', 0);
+    await supabase.from('products').delete().neq('id', 0);
+    
+    // Re-insert products
+    const products = [
+      { name: 'Classic White T-Shirt', description: 'Premium cotton t-shirt', price: 29.99, category: 'clothing', image: '/images/product-1.png', rating: 4.5, reviews: 120, in_stock: true, sizes: ['S','M','L','XL'] },
+      { name: 'Slim Fit Jeans', description: 'Modern slim fit jeans', price: 79.99, category: 'clothing', image: '/images/product-2.png', rating: 4.2, reviews: 85, in_stock: true, sizes: ['30','32','34','36'] },
+      { name: 'Leather Jacket', description: 'Classic biker jacket', price: 199.99, category: 'clothing', image: '/images/product-3.png', rating: 4.8, reviews: 230, in_stock: true, sizes: ['S','M','L','XL'] },
+      { name: 'Running Shoes', description: 'Lightweight running shoes', price: 129.99, category: 'footwear', image: '/images/product-4.png', rating: 4.6, reviews: 450, in_stock: true, sizes: ['7','8','9','10','11'] },
+      { name: 'Wool Beanie', description: 'Warm wool beanie', price: 24.99, category: 'accessories', image: '/images/product-5.png', rating: 4.3, reviews: 67, in_stock: true, sizes: ['One Size'] },
+      { name: 'Leather Backpack', description: 'Handcrafted leather backpack', price: 149.99, category: 'accessories', image: '/images/product-6.png', rating: 4.7, reviews: 190, in_stock: true, sizes: ['One Size'] },
+      { name: 'Silk Scarf', description: 'Luxurious silk scarf', price: 59.99, category: 'accessories', image: '/images/product-7.png', rating: 4.4, reviews: 45, in_stock: true, sizes: ['One Size'] },
+      { name: 'Hooded Sweatshirt', description: 'Cozy fleece sweatshirt', price: 69.99, category: 'clothing', image: '/images/product-8.png', rating: 4.1, reviews: 320, in_stock: true, sizes: ['S','M','L','XL'] },
+      { name: 'Leather Belt', description: 'Genuine leather belt', price: 49.99, category: 'accessories', image: '/images/product-9.png', rating: 4.5, reviews: 78, in_stock: true, sizes: ['28','30','32','34','36'] },
+      { name: 'Canvas Tote Bag', description: 'Durable canvas tote bag', price: 34.99, category: 'lifestyle', image: '/images/product-10.png', rating: 4.6, reviews: 150, in_stock: true, sizes: ['One Size'] },
+      { name: 'Stainless Steel Watch', description: 'Elegant stainless steel watch', price: 249.99, category: 'accessories', image: '/images/product-11.png', rating: 4.9, reviews: 560, in_stock: true, sizes: ['One Size'] },
+      { name: 'Running Shorts', description: 'Breathable running shorts', price: 44.99, category: 'footwear', image: '/images/product-12.png', rating: 4.2, reviews: 95, in_stock: true, sizes: ['S','M','L','XL'] },
+      { name: 'Wool Coat', description: 'Classic wool coat', price: 299.99, category: 'clothing', image: '/images/product-13.png', rating: 4.7, reviews: 110, in_stock: true, sizes: ['S','M','L','XL'] },
+      { name: 'Leather Wallet', description: 'Handcrafted leather wallet', price: 39.99, category: 'accessories', image: '/images/product-14.png', rating: 4.4, reviews: 230, in_stock: true, sizes: ['One Size'] },
+      { name: 'Denim Jacket', description: 'Classic denim jacket', price: 89.99, category: 'clothing', image: '/images/product-15.png', rating: 4.3, reviews: 140, in_stock: true, sizes: ['S','M','L','XL'] }
+    ];
+    
+    for (const product of products) {
+      await supabase.from('products').insert([product]);
+    }
+    
+    console.log('✅ Database reset successful');
+    res.json({ message: 'Database reset successfully!' });
+  } catch (error) {
+    console.error('❌ Reset error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
+// ERROR SIMULATION
+// ============================================
+app.use((req, res, next) => {
+  if (req.query.simulate === '500') {
+    return res.status(500).json({ error: 'Simulated server error' });
+  }
+  if (req.query.simulate === 'slow') {
+    setTimeout(() => next(), 8000);
+  } else {
+    next();
+  }
+});
+
+// ============================================
+// START SERVER
+// ============================================
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Test Sandbox API running on port ${PORT}`);
+  console.log('📚 /api/products - Product CRUD');
+  console.log('🛒 /api/cart - Cart operations');
+  console.log('📦 /api/orders - Order operations');
+  console.log('👤 /api/profile - User profile');
+  console.log('🔐 /api/login - Login');
+  console.log('📝 /api/register - Register');
+  console.log('🔄 /api/reset - Reset database');
+  console.log('⚠️ Add ?simulate=500 or ?simulate=slow to test errors');
+});
