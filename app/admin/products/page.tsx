@@ -4,9 +4,11 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { api, Product } from '@/lib/api'
-import { Pencil, Trash2, Plus, Search } from 'lucide-react'
+import { useToast } from '@/contexts/ToastContext'
+import { Pencil, Trash2, Plus, Search, Package, AlertCircle } from 'lucide-react'
 
 export default function AdminProducts() {
+  const { showToast } = useToast()
   const [products, setProducts] = useState<Product[]>([])
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -42,6 +44,7 @@ export default function AdminProducts() {
       setError(null)
     } catch (err) {
       setError('Failed to load products')
+      showToast('Failed to load products', 'error')
     } finally {
       setLoading(false)
     }
@@ -54,8 +57,9 @@ export default function AdminProducts() {
     try {
       await api.deleteProduct(id)
       setProducts(products.filter((p) => p.id !== id))
+      showToast('Product deleted successfully!', 'success')
     } catch (err) {
-      alert('Failed to delete product')
+      showToast('Failed to delete product. Please try again.', 'error')
     } finally {
       setDeletingId(null)
     }
@@ -72,10 +76,15 @@ export default function AdminProducts() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage your product inventory
+          </p>
+        </div>
         <Link
           href="/admin/products/add"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
         >
           <Plus className="h-5 w-5" />
           Add Product
@@ -99,13 +108,54 @@ export default function AdminProducts() {
         </div>
       </div>
 
+      {/* Stats */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <Package className="h-5 w-5 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Total Products</p>
+              <p className="text-xl font-bold text-gray-900">{products.length}</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-green-100 rounded-lg">
+              <Package className="h-5 w-5 text-green-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">In Stock</p>
+              <p className="text-xl font-bold text-gray-900">
+                {products.filter(p => p.in_stock).length}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-red-100 rounded-lg">
+              <AlertCircle className="h-5 w-5 text-red-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Out of Stock</p>
+              <p className="text-xl font-bold text-gray-900">
+                {products.filter(p => !p.in_stock).length}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4">
           {error}
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
@@ -119,12 +169,16 @@ export default function AdminProducts() {
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm text-gray-900">{product.name}</td>
+                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">{product.name}</td>
                   <td className="px-6 py-4 text-sm text-gray-600 capitalize">{product.category}</td>
                   <td className="px-6 py-4 text-sm text-gray-900">${product.price.toFixed(2)}</td>
                   <td className="px-6 py-4 text-sm">
-                    <span className={product.in_stock ? 'text-green-600' : 'text-red-600'}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      product.in_stock 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
                       {product.in_stock ? 'In Stock' : 'Out of Stock'}
                     </span>
                   </td>
@@ -160,7 +214,16 @@ export default function AdminProducts() {
         </div>
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
+            <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500">No products found</p>
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="mt-2 text-blue-600 hover:text-blue-800 text-sm"
+              >
+                Clear search
+              </button>
+            )}
           </div>
         )}
       </div>

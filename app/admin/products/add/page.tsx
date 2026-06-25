@@ -4,10 +4,12 @@
 import { useState, useRef, DragEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
+import { useToast } from '@/contexts/ToastContext'
 import { Upload, X, Image as ImageIcon } from 'lucide-react'
 
 export default function AddProduct() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragActive, setDragActive] = useState(false)
@@ -45,7 +47,8 @@ export default function AddProduct() {
       if (file.type.startsWith('image/')) {
         handleFile(file)
       } else {
-        setError('Please drop an image file')
+        setError('Please drop an image file (JPG, PNG, or GIF)')
+        showToast('Please drop a valid image file', 'error')
       }
     }
   }
@@ -57,11 +60,19 @@ export default function AddProduct() {
   }
 
   const handleFile = (file: File) => {
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image size must be less than 5MB')
+      showToast('Image size must be less than 5MB', 'error')
+      return
+    }
+
     setImageFile(file)
     const reader = new FileReader()
     reader.onloadend = () => {
       setImagePreview(reader.result as string)
       setFormData({ ...formData, image: URL.createObjectURL(file) })
+      showToast('Image uploaded successfully!', 'success')
     }
     reader.readAsDataURL(file)
   }
@@ -73,12 +84,21 @@ export default function AddProduct() {
     if (fileInputRef.current) {
       fileInputRef.current.value = ''
     }
+    showToast('Image removed', 'info')
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+
+    // Validate price
+    if (!formData.price || parseFloat(formData.price) <= 0) {
+      setError('Please enter a valid price')
+      showToast('Please enter a valid price', 'error')
+      setLoading(false)
+      return
+    }
 
     try {
       const product = {
@@ -88,9 +108,12 @@ export default function AddProduct() {
         reviews: 0,
       }
       await api.createProduct(product)
+      showToast('Product created successfully! 🎉', 'success')
       router.push('/admin/products')
     } catch (err) {
-      setError('Failed to create product')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create product'
+      setError(errorMessage)
+      showToast(errorMessage, 'error')
       setLoading(false)
     }
   }
@@ -112,10 +135,9 @@ export default function AddProduct() {
             Product Image
           </label>
           
-          {/* Drag & Drop Zone */}
           <div
             id="image-upload"
-            className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+            className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
               dragActive 
                 ? 'border-blue-500 bg-blue-50' 
                 : 'border-gray-300 hover:border-gray-400'
@@ -124,8 +146,16 @@ export default function AddProduct() {
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            role="img"
+            role="button"
+            tabIndex={0}
             aria-label="Drag and drop image upload area"
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
           >
             {imagePreview ? (
               <div className="relative inline-block">
@@ -136,7 +166,10 @@ export default function AddProduct() {
                 />
                 <button
                   type="button"
-                  onClick={removeImage}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    removeImage()
+                  }}
                   className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
                   aria-label="Remove image"
                   title="Remove image"
@@ -147,7 +180,7 @@ export default function AddProduct() {
             ) : (
               <div className="space-y-2">
                 <div className="flex justify-center" aria-hidden="true">
-                  <ImageIcon className="h-12 w-12 text-gray-400" />
+                  <Upload className="h-12 w-12 text-gray-400" />
                 </div>
                 <p className="text-sm text-gray-600">
                   Drag and drop an image here, or click to select
@@ -163,11 +196,14 @@ export default function AddProduct() {
               type="file"
               accept="image/*"
               onChange={handleFileInput}
-              className="absolute inset-0 opacity-0 cursor-pointer"
+              className="hidden"
               aria-label="Upload product image"
               title="Click to upload an image"
             />
           </div>
+          {imagePreview && (
+            <p className="text-xs text-green-600 mt-1">✓ Image uploaded successfully</p>
+          )}
         </div>
 
         {/* Product Name */}
@@ -213,6 +249,7 @@ export default function AddProduct() {
               id="add-price"
               type="number"
               step="0.01"
+              min="0.01"
               required
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: e.target.value })}
@@ -259,12 +296,12 @@ export default function AddProduct() {
 
         {/* In Stock */}
         <div className="flex items-center gap-4">
-          <label className="flex items-center gap-2">
+          <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
               checked={formData.in_stock}
               onChange={(e) => setFormData({ ...formData, in_stock: e.target.checked })}
-              className="h-4 w-4 text-blue-600 rounded"
+              className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
               aria-label="Product in stock"
               title="Toggle stock status"
             />
@@ -273,13 +310,20 @@ export default function AddProduct() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4 pt-4 border-t">
+        <div className="flex gap-4 pt-4 border-t border-gray-200">
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            {loading ? 'Creating...' : 'Create Product'}
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                Creating...
+              </span>
+            ) : (
+              'Create Product'
+            )}
           </button>
           <a
             href="/admin/products"
