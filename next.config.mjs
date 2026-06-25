@@ -1,14 +1,18 @@
+// next.config.mjs
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
-  output: 'export',
-  // Force revalidation
-  staticPageGenerationTimeout: 120,
+  // ✅ Remove output: 'export'
 }
 
 export default nextConfig
