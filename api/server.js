@@ -564,6 +564,232 @@ app.put('/api/profile/:userId', async (req, res) => {
   }
 });
 
+
+// ============================================
+// USER MANAGEMENT ENDPOINTS
+// ============================================
+
+// GET all users
+app.get('/api/users', async (req, res) => {
+  try {
+    console.log('📚 Fetching users...');
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username, email, name, role, created_at')
+      .order('id', { ascending: true });
+    
+    if (error) throw error;
+    res.json(data || []);
+  } catch (error) {
+    console.error('❌ Users error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET single user
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username, email, name, role, created_at')
+      .eq('id', req.params.id)
+      .single();
+    
+    if (error || !data) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE user role
+app.put('/api/users/:id/role', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    
+    console.log('📝 Updating user role:', id, '→', role);
+    
+    // Validate role
+    if (!['admin', 'viewer', 'locked'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    
+    // Check if user exists
+    const { data: existing, error: checkError } = await supabase
+      .from('users')
+      .select('id, username')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const { data, error } = await supabase
+      .from('users')
+      .update({ role })
+      .eq('id', id)
+      .select('id, username, email, name, role, created_at');
+    
+    if (error) throw error;
+    
+    console.log('✅ User role updated:', existing.username, '→', role);
+    res.json(data[0]);
+  } catch (error) {
+    console.error('❌ Update role error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE user
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('🗑️ Deleting user:', id);
+    
+    // Check if user exists
+    const { data: existing, error: checkError } = await supabase
+      .from('users')
+      .select('id, username')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Prevent deleting the last admin user
+    const { data: admins, error: countError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('role', 'admin');
+    
+    if (!countError && admins && admins.length <= 1 && existing.role === 'admin') {
+      return res.status(400).json({ error: 'Cannot delete the last admin user' });
+    }
+    
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    console.log('✅ User deleted:', existing.username);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('❌ Delete user error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+// GET single user
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('id, username, email, name, role, created_at')
+      .eq('id', req.params.id)
+      .single();
+    
+    if (error || !data) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// UPDATE user role
+app.put('/api/users/:id/role', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    
+    console.log('📝 Updating user role:', id, '→', role);
+    
+    // Validate role
+    if (!['admin', 'viewer', 'locked'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    
+    // Check if user exists
+    const { data: existing, error: checkError } = await supabase
+      .from('users')
+      .select('id, username')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Prevent changing your own role (to avoid locking yourself out)
+    // We'll handle this on the frontend with a warning
+    
+    const { data, error } = await supabase
+      .from('users')
+      .update({ role })
+      .eq('id', id)
+      .select('id, username, email, name, role, created_at');
+    
+    if (error) throw error;
+    
+    console.log('✅ User role updated:', existing.username, '→', role);
+    res.json(data[0]);
+  } catch (error) {
+    console.error('❌ Update role error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE user
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log('🗑️ Deleting user:', id);
+    
+    // Check if user exists
+    const { data: existing, error: checkError } = await supabase
+      .from('users')
+      .select('id, username')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    // Prevent deleting the last admin user
+    const { data: admins, error: countError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('role', 'admin');
+    
+    if (!countError && admins && admins.length <= 1 && existing.role === 'admin') {
+      return res.status(400).json({ error: 'Cannot delete the last admin user' });
+    }
+    
+    const { error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', id);
+    
+    if (error) throw error;
+    
+    console.log('✅ User deleted:', existing.username);
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    console.error('❌ Delete user error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============================================
 // RESET DATABASE (for testing)
 // ============================================
