@@ -36,7 +36,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   // ✅ Convert numeric ID to 'p' format for the link
-  const productLink = `/product/p${product.id}`
+  const productLink = `/product/${product.id}`
 
   return (
     <Link href={productLink}>
