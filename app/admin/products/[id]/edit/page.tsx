@@ -2,13 +2,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter, useParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 
-export default function EditProduct() {
+interface EditProductClientProps {
+  id: string
+}
+
+export default function EditProduct({ params }: { params: { id: string } }) {
   const router = useRouter()
-  const params = useParams()
-  const id = parseInt(params.id as string)
+  const id = parseInt(params.id)
   
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -29,6 +32,7 @@ export default function EditProduct() {
 
   const fetchProduct = async () => {
     try {
+      setLoading(true)
       const product = await api.getProduct(id)
       setFormData({
         name: product.name,
@@ -39,6 +43,7 @@ export default function EditProduct() {
         in_stock: product.in_stock,
         sizes: product.sizes || [],
       })
+      setError(null)
     } catch (err) {
       setError('Failed to load product')
     } finally {
@@ -188,6 +193,8 @@ export default function EditProduct() {
               checked={formData.in_stock}
               onChange={(e) => setFormData({ ...formData, in_stock: e.target.checked })}
               className="h-4 w-4 text-blue-600 rounded"
+              aria-label="Product in stock"
+              title="Toggle stock status"
             />
             <span className="text-sm text-gray-700">In Stock</span>
           </label>

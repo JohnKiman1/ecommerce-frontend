@@ -87,11 +87,14 @@ export default function AdminProducts() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
           <input
+            id="search-products"
             type="text"
             placeholder="Search products..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            title="Search products by name or category"
+            aria-label="Search products"
           />
         </div>
       </div>
@@ -130,6 +133,8 @@ export default function AdminProducts() {
                       <Link
                         href={`/admin/products/${product.id}/edit`}
                         className="text-blue-600 hover:text-blue-800 transition-colors"
+                        aria-label={`Edit ${product.name}`}
+                        title={`Edit ${product.name}`}
                       >
                         <Pencil className="h-4 w-4" />
                       </Link>
@@ -137,6 +142,8 @@ export default function AdminProducts() {
                         onClick={() => handleDelete(product.id)}
                         disabled={deletingId === product.id}
                         className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
+                        aria-label={`Delete ${product.name}`}
+                        title={`Delete ${product.name}`}
                       >
                         {deletingId === product.id ? (
                           <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent"></span>
