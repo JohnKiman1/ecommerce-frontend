@@ -22,8 +22,8 @@ const PRICE_RANGES = [
   { id: 'over-100', name: 'Over $100', min: 100, max: Infinity },
 ]
 
-// Items per page options
-const ITEMS_PER_PAGE_OPTIONS = [8, 16, 24, 48]
+// ✅ Updated items per page options
+const ITEMS_PER_PAGE_OPTIONS = [5, 10, 20, 50, 100]
 
 function ShopContent() {
   const searchParams = useSearchParams()
@@ -34,7 +34,7 @@ function ShopContent() {
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || '')
   const [selectedPriceRange, setSelectedPriceRange] = useState('')
   const [sortBy, setSortBy] = useState<'newest' | 'price-low' | 'price-high' | 'rating'>('newest')
-  const [itemsPerPage, setItemsPerPage] = useState(8)
+  const [itemsPerPage, setItemsPerPage] = useState(10) // ✅ Default changed to 10
   const [currentPage, setCurrentPage] = useState(1)
 
   // Fetch products from API
