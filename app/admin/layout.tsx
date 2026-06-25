@@ -2,7 +2,7 @@
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
 import { LayoutDashboard, Package, Users, ShoppingCart, LogOut } from 'lucide-react'
@@ -15,6 +15,7 @@ export default function AdminLayout({
 }) {
   const { user, isLoading, logout } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!isLoading && (!user || user.role !== 'admin')) {
@@ -48,26 +49,39 @@ export default function AdminLayout({
           {/* Sidebar */}
           <aside className="w-64 min-h-screen bg-white border-r border-gray-200 p-4 sticky top-0">
             <div className="mb-8">
-              <h1 className="text-2xl font-bold text-gray-900">Admin</h1>
-              <p className="text-sm text-gray-500">Dashboard</p>
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">A</span>
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-gray-900">Admin</h1>
+                  <p className="text-xs text-gray-500">Dashboard</p>
+                </div>
+              </div>
             </div>
-            <nav className="space-y-2">
+            <nav className="space-y-1">
               {navItems.map((item) => {
                 const Icon = item.icon
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700"
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-blue-50 text-blue-700 font-medium'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
-                    <Icon className="h-5 w-5" />
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
                     {item.label}
                   </Link>
                 )
               })}
+              <div className="border-t border-gray-200 my-4"></div>
               <button
                 onClick={logout}
-                className="flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors text-red-600 w-full"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-red-600 w-full"
               >
                 <LogOut className="h-5 w-5" />
                 Logout

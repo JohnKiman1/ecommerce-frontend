@@ -5,6 +5,8 @@ export interface User {
   id: number;
   username: string;
   role: string;
+  email?: string; 
+  name?: string; 
 }
 
 export interface Product {
@@ -233,6 +235,46 @@ export const api = {
     }
     return response.json();
   },
+
+  // Users
+getUsers: async (): Promise<User[]> => {
+  const response = await fetch(`${API_BASE}/users`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch users');
+  }
+  return response.json();
+},
+
+getUser: async (id: number): Promise<User> => {
+  const response = await fetch(`${API_BASE}/users/${id}`);
+  if (!response.ok) {
+    throw new Error('User not found');
+  }
+  return response.json();
+},
+
+updateUserRole: async (id: number, role: string): Promise<User> => {
+  const response = await fetch(`${API_BASE}/users/${id}/role`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ role })
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to update user role');
+  }
+  return response.json();
+},
+
+deleteUser: async (id: number): Promise<void> => {
+  const response = await fetch(`${API_BASE}/users/${id}`, {
+    method: 'DELETE'
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to delete user');
+  }
+},
 
   // Reset Database
   resetDatabase: async () => {
