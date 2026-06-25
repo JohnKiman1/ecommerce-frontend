@@ -1,6 +1,7 @@
-import type { Product } from '@/types'
+// lib/mockData.ts
+import type { ECommerceProduct } from '@/types'
 
-export const MOCK_PRODUCTS: Product[] = [
+export const MOCK_PRODUCTS: ECommerceProduct[] = [
   {
     id: 'p1',
     name: 'Premium Cotton T-Shirt',
@@ -23,6 +24,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.8,
     reviews: 256,
     inStock: true,
+    sizes: ['One Size'],
   },
   {
     id: 'p3',
@@ -46,6 +48,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.7,
     reviews: 189,
     inStock: true,
+    sizes: ['One Size'],
   },
   {
     id: 'p5',
@@ -69,6 +72,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.5,
     reviews: 176,
     inStock: true,
+    sizes: ['One Size'],
   },
   {
     id: 'p7',
@@ -92,6 +96,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.5,
     reviews: 98,
     inStock: true,
+    sizes: ['28', '30', '32', '34', '36', '38', '40'],
   },
   {
     id: 'p9',
@@ -127,6 +132,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.6,
     reviews: 203,
     inStock: true,
+    sizes: ['One Size'],
   },
   {
     id: 'p12',
@@ -138,6 +144,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.5,
     reviews: 287,
     inStock: true,
+    sizes: ['One Size'],
   },
   {
     id: 'p13',
@@ -161,6 +168,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.3,
     reviews: 89,
     inStock: true,
+    sizes: ['One Size'],
   },
   {
     id: 'p15',
@@ -172,6 +180,7 @@ export const MOCK_PRODUCTS: Product[] = [
     rating: 4.5,
     reviews: 167,
     inStock: true,
+    sizes: ['One Size'],
   },
 ]
 
@@ -189,12 +198,12 @@ export const PRICE_RANGES = [
   { id: 'over-150', name: 'Over $150', min: 150, max: Infinity },
 ]
 
-export function getProductById(id: string): Product | undefined {
+export function getProductById(id: string): ECommerceProduct | undefined {
   return MOCK_PRODUCTS.find((p) => p.id === id)
 }
 
 export function filterProducts(
-  products: Product[],
+  products: ECommerceProduct[],
   {
     category,
     priceRange,
@@ -206,7 +215,7 @@ export function filterProducts(
     searchQuery?: string
     sortBy?: 'newest' | 'price-low' | 'price-high' | 'rating'
   } = {}
-): Product[] {
+): ECommerceProduct[] {
   let filtered = [...products]
 
   if (category) {
@@ -219,7 +228,9 @@ export function filterProducts(
 
   if (searchQuery) {
     const query = searchQuery.toLowerCase()
-    filtered = filtered.filter((p) => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query))
+    filtered = filtered.filter(
+      (p) => p.name.toLowerCase().includes(query) || p.description.toLowerCase().includes(query)
+    )
   }
 
   if (sortBy) {
