@@ -12,11 +12,16 @@ export async function generateStaticParams() {
     }))
   } catch (error) {
     console.error('❌ Failed to fetch products:', error)
-    // Return empty array - products will be fetched on client side
     return []
   }
 }
 
-export default function ProductPage({ params }: { params: { id: string } }) {
-  return <ProductDetailClient productId={params.id} />
+// ✅ Fix: Properly handle params as a Promise
+export default async function ProductPage({ 
+  params 
+}: { 
+  params: Promise<{ id: string }> 
+}) {
+  const { id } = await params
+  return <ProductDetailClient productId={id} />
 }

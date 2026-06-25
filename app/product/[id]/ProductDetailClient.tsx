@@ -26,6 +26,13 @@ export default function ProductDetailClient({ productId }: { productId: string }
       try {
         setLoading(true)
         
+        // ✅ Safety check: if productId is undefined or null, handle gracefully
+        if (!productId) {
+          console.error('Product ID is undefined or null')
+          setLoading(false)
+          return
+        }
+        
         // ✅ Convert 'p16' to 16, or use as-is if it's a number
         let numericId: number
         if (productId.startsWith('p')) {
@@ -57,46 +64,48 @@ export default function ProductDetailClient({ productId }: { productId: string }
         console.error('Failed to fetch product from API:', error)
         
         // ✅ Fallback to mock data if API fails
-        const mockProduct = getProductById(productId)
-        if (mockProduct) {
-          // Convert mock product to API product format
-          const convertedProduct: Product = {
-            id: parseInt(mockProduct.id.replace('p', '')),
-            name: mockProduct.name,
-            description: mockProduct.description,
-            price: mockProduct.price,
-            category: mockProduct.category,
-            image: mockProduct.image,
-            rating: mockProduct.rating,
-            reviews: mockProduct.reviews,
-            in_stock: mockProduct.inStock,
-            sizes: mockProduct.sizes,
-            created_at: new Date().toISOString(),
-          }
-          setProduct(convertedProduct)
-          setSelectedSize(convertedProduct.sizes?.[0])
-          
-          // Also fetch related products from mock data
-          const allMockProducts = MOCK_PRODUCTS
-          const related = allMockProducts
-            .filter((p) => p.category === mockProduct.category && p.id !== mockProduct.id)
-            .slice(0, 4)
-            .map((p) => ({
-              id: parseInt(p.id.replace('p', '')),
-              name: p.name,
-              description: p.description,
-              price: p.price,
-              category: p.category,
-              image: p.image,
-              rating: p.rating,
-              reviews: p.reviews,
-              in_stock: p.inStock,
-              sizes: p.sizes,
+        if (productId) {
+          const mockProduct = getProductById(productId)
+          if (mockProduct) {
+            // Convert mock product to API product format
+            const convertedProduct: Product = {
+              id: parseInt(mockProduct.id.replace('p', '')),
+              name: mockProduct.name,
+              description: mockProduct.description,
+              price: mockProduct.price,
+              category: mockProduct.category,
+              image: mockProduct.image,
+              rating: mockProduct.rating,
+              reviews: mockProduct.reviews,
+              in_stock: mockProduct.inStock,
+              sizes: mockProduct.sizes,
               created_at: new Date().toISOString(),
-            }))
-          setRelatedProducts(related)
-        } else {
-          console.error('Product not found in mock data:', productId)
+            }
+            setProduct(convertedProduct)
+            setSelectedSize(convertedProduct.sizes?.[0])
+            
+            // Also fetch related products from mock data
+            const allMockProducts = MOCK_PRODUCTS
+            const related = allMockProducts
+              .filter((p) => p.category === mockProduct.category && p.id !== mockProduct.id)
+              .slice(0, 4)
+              .map((p) => ({
+                id: parseInt(p.id.replace('p', '')),
+                name: p.name,
+                description: p.description,
+                price: p.price,
+                category: p.category,
+                image: p.image,
+                rating: p.rating,
+                reviews: p.reviews,
+                in_stock: p.inStock,
+                sizes: p.sizes,
+                created_at: new Date().toISOString(),
+              }))
+            setRelatedProducts(related)
+          } else {
+            console.error('Product not found in mock data:', productId)
+          }
         }
       } finally {
         setLoading(false)
@@ -106,6 +115,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
     fetchProduct()
   }, [productId])
 
+  // ✅ Show loading state while checking
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
