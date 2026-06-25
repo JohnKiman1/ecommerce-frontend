@@ -1,3 +1,4 @@
+// components/ProductCard.tsx
 'use client'
 
 import { useState } from 'react'
@@ -34,8 +35,11 @@ export function ProductCard({ product }: ProductCardProps) {
     }
   }
 
+  // ✅ Convert numeric ID to 'p' format for the link
+  const productLink = `/product/p${product.id}`
+
   return (
-    <Link href={`/product/${product.id}`}>
+    <Link href={productLink}>
       <div className="group cursor-pointer">
         {/* Product Image */}
         <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4 aspect-square">
