@@ -72,7 +72,6 @@ app.post('/api/register', async (req, res) => {
       return res.status(400).json({ error: 'Username and password are required' });
     }
     
-    // Check if user exists
     const { data: existing } = await supabase
       .from('users')
       .select('id')
@@ -457,17 +456,80 @@ app.delete('/api/cart/user/:userId', async (req, res) => {
 // ORDER ENDPOINTS
 // ============================================
 
-// CREATE order (existing)
+// CREATE order
 app.post('/api/orders', async (req, res) => {
-  // ... existing code
+  try {
+    const { user_id, items, subtotal, shipping, tax, total, shipping_address, payment_method, status } = req.body;
+    
+    console.log('📝 Creating order for user:', user_id);
+    
+    if (!user_id) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+    
+    const orderData = {
+      user_id,
+      items: JSON.stringify(items || []),
+      subtotal: subtotal || 0,
+      shipping: shipping || 0,
+      tax: tax || 0,
+      total: total || 0,
+      shipping_address: JSON.stringify(shipping_address || {}),
+      payment_method: payment_method || 'credit_card',
+      status: status || 'pending'
+    };
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .insert([orderData])
+      .select();
+    
+    if (error) {
+      console.error('❌ Order insert error:', error);
+      return res.status(500).json({ error: error.message });
+    }
+    
+    await supabase
+      .from('cart_items')
+      .delete()
+      .eq('user_id', user_id);
+    
+    console.log('✅ Order created:', data[0].id);
+    res.status(201).json(data[0]);
+  } catch (error) {
+    console.error('❌ Order error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// GET user orders (existing)
+// GET user orders
 app.get('/api/orders/:userId', async (req, res) => {
-  // ... existing code
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', req.params.userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Orders fetch error:', error);
+      throw error;
+    }
+    
+    const ordersWithParsedFields = (data || []).map(order => ({
+      ...order,
+      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [],
+      shipping_address: order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : {}
+    }));
+    
+    res.json(ordersWithParsedFields);
+  } catch (error) {
+    console.error('❌ Orders error:', error);
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// ✅ ADD THIS: GET single order by ID
+// GET single order
 app.get('/api/orders/:userId/:orderId', async (req, res) => {
   try {
     const { userId, orderId } = req.params;
@@ -486,126 +548,6 @@ app.get('/api/orders/:userId/:orderId', async (req, res) => {
       return res.status(404).json({ error: 'Order not found' });
     }
     
-    // Parse JSON fields
-    const order = {
-      ...data,
-      items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
-      shipping_address: data.shipping_address ? (typeof data.shipping_address === 'string' ? JSON.parse(data.shipping_address) : data.shipping_address) : {}
-    };
-    
-    console.log('✅ Single order fetched:', orderId);
-    res.json(order);
-  } catch (error) {
-    console.error('❌ Single order error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET user orders (existing)
-app.get('/api/orders/:userId', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', req.params.userId)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('❌ Orders fetch error:', error);
-      throw error;
-    }
-    
-    const ordersWithParsedFields = data.map(order => ({
-      ...order,
-      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [],
-      shipping_address: order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : {}
-    }));
-    
-    res.json(ordersWithParsedFields || []);
-  } catch (error) {
-    console.error('❌ Orders error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ✅ ADD: GET single order by ID (NEW)
-app.get('/api/orders/:userId/:orderId', async (req, res) => {
-  try {
-    const { userId, orderId } = req.params;
-    
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .eq('user_id', userId)
-      .single();
-    
-    if (error || !data) {
-      return res.status(404).json({ error: 'Order not found' });
-    }
-    
-    // Parse JSON fields
-    const order = {
-      ...data,
-      items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
-      shipping_address: data.shipping_address ? (typeof data.shipping_address === 'string' ? JSON.parse(data.shipping_address) : data.shipping_address) : {}
-    };
-    
-    res.json(order);
-  } catch (error) {
-    console.error('❌ Single order error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// GET user orders - Updated to parse items
-app.get('/api/orders/:userId', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('user_id', req.params.userId)
-      .order('created_at', { ascending: false });
-    
-    if (error) {
-      console.error('❌ Orders fetch error:', error);
-      throw error;
-    }
-    
-    // Parse JSON fields
-    const ordersWithParsedFields = data.map(order => ({
-      ...order,
-      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [],
-      shipping_address: order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : {}
-    }));
-    
-    res.json(ordersWithParsedFields || []);
-  } catch (error) {
-    console.error('❌ Orders error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ✅ GET single order by ID
-app.get('/api/orders/:userId/:orderId', async (req, res) => {
-  try {
-    const { userId, orderId } = req.params;
-    
-    console.log(`📝 Fetching order ${orderId} for user ${userId}`);
-    
-    const { data, error } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .eq('user_id', userId)
-      .single();
-    
-    if (error || !data) {
-      console.log('❌ Order not found:', orderId, 'for user:', userId);
-      return res.status(404).json({ error: 'Order not found' });
-    }
-    
-    // Parse JSON fields
     const order = {
       ...data,
       items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
@@ -847,7 +789,7 @@ app.listen(PORT, () => {
   console.log(`🚀 E-commerce API running on port ${PORT}`);
   console.log('📚 /api/products - Product CRUD (GET, POST, PUT, DELETE)');
   console.log('🛒 /api/cart - Cart operations');
-  console.log('📦 /api/orders - Order operations (POST, GET, GET/:id)');
+  console.log('📦 /api/orders - Order operations (POST, GET all, GET single)');
   console.log('👤 /api/profile - User profile');
   console.log('👥 /api/users - User management');
   console.log('🔐 /api/login - Login');
