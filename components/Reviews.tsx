@@ -1,8 +1,8 @@
 // components/Reviews.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Star, User, Trash2, Calendar } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Star, User, Trash2, X, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { api } from '@/lib/api'
@@ -23,9 +23,10 @@ interface Review {
 interface ReviewsProps {
   productId: number
   productName?: string
+  autoOpen?: boolean
 }
 
-export default function Reviews({ productId, productName }: ReviewsProps) {
+export default function Reviews({ productId, productName, autoOpen = false }: ReviewsProps) {
   const { user, isAuthenticated } = useAuth()
   const { showToast } = useToast()
   const [reviews, setReviews] = useState<Review[]>([])
@@ -36,27 +37,43 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  // ✅ Add a state to track if the review check is complete
+  const [reviewCheckComplete, setReviewCheckComplete] = useState(false)
+  const userReviewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchReviews()
   }, [productId])
 
+  useEffect(() => {
+    // ✅ Only auto-open after review check is complete and user hasn't reviewed
+    if (!loading && reviewCheckComplete && autoOpen && !hasReviewed) {
+      setShowForm(true)
+    }
+  }, [loading, reviewCheckComplete, autoOpen, hasReviewed])
+
   const fetchReviews = async () => {
     try {
       setLoading(true)
+      setReviewCheckComplete(false)
       const data = await api.getReviews(productId)
       setReviews(data)
       
-      // Check if current user has reviewed
       if (user) {
         const existing = data.find((r: Review) => r.user_id === user.id)
         setHasReviewed(!!existing)
         setUserReview(existing || null)
+        
+        if (existing && autoOpen) {
+          setShowForm(false)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch reviews:', error)
     } finally {
       setLoading(false)
+      // ✅ Mark review check as complete
+      setReviewCheckComplete(true)
     }
   }
 
@@ -67,6 +84,7 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
       return
     }
 
+    // ✅ Double-check that user hasn't reviewed
     if (hasReviewed) {
       showToast('You have already reviewed this product', 'error')
       return
@@ -87,9 +105,15 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
       setRating(0)
       setComment('')
       showToast('Review submitted successfully! 🎉', 'success')
+      
+      setTimeout(() => {
+        userReviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 300)
     } catch (error: any) {
-      if (error.message.includes('already reviewed')) {
+      if (error.message?.includes('already reviewed')) {
         showToast('You have already reviewed this product', 'error')
+        // ✅ Refresh to update state
+        fetchReviews()
       } else {
         showToast('Failed to submit review', 'error')
       }
@@ -115,7 +139,8 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : 0
 
-  if (loading) {
+  // ✅ Show loading spinner while checking reviews
+  if (loading || !reviewCheckComplete) {
     return (
       <div className="flex justify-center py-8">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
@@ -147,20 +172,59 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
         </div>
       </div>
 
-      {/* Write Review Button */}
-      {isAuthenticated && !hasReviewed && !showForm && (
-        <button
-          onClick={() => setShowForm(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-        >
-          Write a Review
-        </button>
+      {/* ✅ Write Review Section - Only show when review check is complete */}
+      {isAuthenticated && reviewCheckComplete && (
+        <div className="flex items-center justify-between">
+          {!hasReviewed ? (
+            !showForm ? (
+              <button
+                onClick={() => setShowForm(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                title="Write a review for this product"
+                aria-label="Write a review for this product"
+              >
+                Write a Review
+              </button>
+            ) : null
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-4 w-4 ${
+                      star <= (userReview?.rating || 0)
+                        ? 'fill-green-500 text-green-500'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-medium text-green-600">You've already reviewed this product</span>
+            </div>
+          )}
+        </div>
       )}
 
       {/* Review Form */}
-      {showForm && !hasReviewed && (
+      {showForm && !hasReviewed && reviewCheckComplete && (
         <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-          <h3 className="font-semibold text-gray-900 mb-3">Write a Review</h3>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-gray-900">Write a Review</h3>
+            <button
+              type="button"
+              onClick={() => {
+                setShowForm(false)
+                setRating(0)
+                setComment('')
+              }}
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              title="Close review form"
+              aria-label="Close review form"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
           <div className="flex items-center gap-1 mb-3">
             {[1, 2, 3, 4, 5].map((star) => (
               <button
@@ -169,6 +233,7 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
                 onClick={() => setRating(star)}
                 className="focus:outline-none"
                 title={`Rate ${star} stars`}
+                aria-label={`Rate ${star} stars`}
               >
                 <Star
                   className={`h-8 w-8 ${
@@ -187,12 +252,16 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
             rows={3}
             required
+            title="Write your review"
+            aria-label="Write your review"
           />
           <div className="flex gap-2 mt-3">
             <button
               type="submit"
               disabled={submitting}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
+              title="Submit your review"
+              aria-label="Submit your review"
             >
               {submitting ? 'Submitting...' : 'Submit Review'}
             </button>
@@ -204,6 +273,8 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
                 setComment('')
               }}
               className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              title="Cancel review"
+              aria-label="Cancel review"
             >
               Cancel
             </button>
@@ -213,7 +284,11 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
 
       {/* User's Own Review */}
       {userReview && (
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div 
+          ref={userReviewRef}
+          id="user-review"
+          className="bg-blue-50 rounded-lg p-4 border border-blue-200"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
@@ -239,6 +314,8 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
               <button
                 onClick={() => handleDelete(userReview.id)}
                 className="text-red-500 hover:text-red-700 transition-colors"
+                title="Delete your review"
+                aria-label="Delete your review"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -254,42 +331,45 @@ export default function Reviews({ productId, productName }: ReviewsProps) {
         {reviews.length === 0 ? (
           <p className="text-gray-500 text-sm">No reviews yet. Be the first to review!</p>
         ) : (
-          reviews.map((review) => (
-            <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <User className="h-4 w-4 text-gray-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">
-                      {review.users?.name || review.users?.username || 'Anonymous'}
-                    </p>
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`h-3.5 w-3.5 ${
-                            star <= review.rating
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
+          reviews.map((review) => {
+            if (user && review.user_id === user.id) return null
+            return (
+              <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+                      <User className="h-4 w-4 text-gray-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {review.users?.name || review.users?.username || 'Anonymous'}
+                      </p>
+                      <div className="flex items-center gap-1">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            className={`h-3.5 w-3.5 ${
+                              star <= review.rating
+                                ? 'fill-yellow-400 text-yellow-400'
+                                : 'text-gray-300'
+                            }`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
+                  <span className="text-xs text-gray-400">
+                    {new Date(review.created_at).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </span>
                 </div>
-                <span className="text-xs text-gray-400">
-                  {new Date(review.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })}
-                </span>
+                <p className="text-sm text-gray-600 mt-2">{review.comment}</p>
               </div>
-              <p className="text-sm text-gray-600 mt-2">{review.comment}</p>
-            </div>
-          ))
+            )
+          })
         )}
       </div>
     </div>

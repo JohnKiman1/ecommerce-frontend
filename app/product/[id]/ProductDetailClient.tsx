@@ -10,8 +10,17 @@ import { useCart } from '@/contexts/CartContext'
 import { useNotification } from '@/contexts/NotificationContext'
 import { api, Product } from '@/lib/api'
 import { getProductById, MOCK_PRODUCTS } from '@/lib/mockData'
+import Reviews from '@/components/Reviews'  // ✅ Import Reviews component
 
-export default function ProductDetailClient({ productId }: { productId: string }) {
+interface ProductDetailClientProps {
+  productId: string
+  autoOpenReview?: boolean  // ✅ Add this prop
+}
+
+export default function ProductDetailClient({ 
+  productId,
+  autoOpenReview = false  // ✅ Default to false
+}: ProductDetailClientProps) {
   const router = useRouter()
   const { addItem } = useCart()
   const { addNotification } = useNotification()
@@ -26,14 +35,14 @@ export default function ProductDetailClient({ productId }: { productId: string }
       try {
         setLoading(true)
         
-        // ✅ Safety check: if productId is undefined or null, handle gracefully
+        // Safety check: if productId is undefined or null, handle gracefully
         if (!productId) {
           console.error('Product ID is undefined or null')
           setLoading(false)
           return
         }
         
-        // ✅ Convert 'p16' to 16, or use as-is if it's a number
+        // Convert 'p16' to 16, or use as-is if it's a number
         let numericId: number
         if (productId.startsWith('p')) {
           numericId = parseInt(productId.substring(1))
@@ -63,7 +72,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
       } catch (error) {
         console.error('Failed to fetch product from API:', error)
         
-        // ✅ Fallback to mock data if API fails
+        // Fallback to mock data if API fails
         if (productId) {
           const mockProduct = getProductById(productId)
           if (mockProduct) {
@@ -115,7 +124,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
     fetchProduct()
   }, [productId])
 
-  // ✅ Show loading state while checking
+  // Show loading state while checking
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -173,9 +182,9 @@ export default function ProductDetailClient({ productId }: { productId: string }
                 src={product.image || '/images/placeholder.png'}
                 alt={product.name}
                 fill
-                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
                 priority
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
             </div>
           </div>
@@ -287,6 +296,18 @@ export default function ProductDetailClient({ productId }: { productId: string }
         </div>
       </div>
 
+      {/* ✅ Reviews Section */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+          <Reviews 
+            productId={product.id} 
+            productName={product.name}
+            autoOpen={autoOpenReview}
+          />
+        </div>
+      </div>
+
       {/* Related Products */}
       {relatedProducts.length > 0 && (
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
@@ -300,4 +321,4 @@ export default function ProductDetailClient({ productId }: { productId: string }
       )}
     </div>
   )
-} 
+}

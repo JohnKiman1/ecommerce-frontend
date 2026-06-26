@@ -211,7 +211,7 @@ export default function OrderDetailPage() {
           </div>
         </div>
 
-        {/* ✅ Order Status Management (Admin Only) */}
+        {/* Order Status Management (Admin Only) */}
         {user?.role === 'admin' && statusConfig.nextStatus && statusConfig.nextStatus.length > 0 && (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -245,7 +245,6 @@ export default function OrderDetailPage() {
                 })}
               </div>
             </div>
-            {/* Status Timeline */}
             <div className="mt-4 pt-4 border-t border-gray-200">
               <div className="flex items-center gap-3 text-sm text-gray-500">
                 <span>Current Status:</span>
@@ -283,82 +282,45 @@ export default function OrderDetailPage() {
                       <p className="text-sm text-gray-500">${item.price.toFixed(2)} each</p>
                     </div>
                   </div>
-                  {/* Rating Section */}
-                  {order.status === 'delivered' && (
-                    <div className="mt-2">
-                      {showReviewForm && reviewingProductId === item.productId ? (
-                        <div className="bg-gray-50 rounded-lg p-3 mt-2">
-                          <div className="flex items-center gap-1 mb-2">
-                            {[1, 2, 3, 4, 5].map((star) => (
-                              <button
-                                key={star}
-                                onClick={() => setRating(star)}
-                                className="focus:outline-none"
-                                title={`Rate ${star} stars`}
-                                aria-label={`Rate ${star} stars`}
-                              >
-                                <Star
-                                  className={`h-6 w-6 ${
-                                    star <= rating
-                                      ? 'fill-yellow-400 text-yellow-400'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              </button>
-                            ))}
-                          </div>
-                          <textarea
-                            value={review}
-                            onChange={(e) => setReview(e.target.value)}
-                            placeholder="Write your review..."
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm"
-                            rows={2}
-                            title="Write your review"
-                            aria-label="Write your review"
-                          />
-                          <div className="flex gap-2 mt-2">
-                            <button
-                              onClick={submitReview}
-                              disabled={submitting}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
-                              title="Submit your review"
-                              aria-label="Submit your review"
-                            >
-                              {submitting ? 'Submitting...' : 'Submit Review'}
-                            </button>
-                            <button
-                              onClick={() => {
-                                setShowReviewForm(false)
-                                setRating(0)
-                                setReview('')
-                                setReviewingProductId(null)
-                              }}
-                              className="px-3 py-1 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                              title="Cancel review"
-                              aria-label="Cancel review"
-                            >
-                              Cancel
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <button
-                          onClick={() => handleRating(item.productId)}
-                          className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
-                          title={`Rate ${item.productName}`}
-                          aria-label={`Rate ${item.productName}`}
-                        >
-                          <Star className="h-4 w-4" />
-                          Rate this product
-                        </button>
-                      )}
-                    </div>
-                  )}
                 </div>
               </div>
             ))}
           </div>
         </div>
+
+        {/* ✅ Rate Your Products Section - Only for delivered orders */}
+        {order.status === 'delivered' && order.items && order.items.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
+              <h3 className="text-lg font-semibold text-gray-900">Rate Your Products</h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              Help other customers by sharing your experience with these products.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {order.items.map((item: any) => (
+                <div key={item.productId} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                  <img 
+                    src={item.image || '/images/placeholder.png'} 
+                    alt={item.productName} 
+                    className="h-12 w-12 object-cover rounded-lg bg-gray-100"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{item.productName}</p>
+                    <button
+                      onClick={() => router.push(`/product/${item.productId}?rate=true`)}
+                      className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
+                    >
+                      <Star className="h-3.5 w-3.5" />
+                      Write a Review
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Order Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

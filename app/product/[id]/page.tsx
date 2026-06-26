@@ -16,12 +16,15 @@ export async function generateStaticParams() {
   }
 }
 
-// ✅ Fix: Properly handle params as a Promise
 export default async function ProductPage({ 
-  params 
+  params,
+  searchParams
 }: { 
-  params: Promise<{ id: string }> 
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ rate?: string }>
 }) {
   const { id } = await params
-  return <ProductDetailClient productId={id} />
+  const { rate } = await searchParams
+  
+  return <ProductDetailClient productId={id} autoOpenReview={rate === 'true'} />
 }
