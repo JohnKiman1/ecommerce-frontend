@@ -173,6 +173,7 @@ export default function ProductDetailClient({ productId }: { productId: string }
                 src={product.image || '/images/placeholder.png'}
                 alt={product.name}
                 fill
+                sizes="(max-width: 768px) 100vw, 50vw"
                 className="object-cover"
                 priority
               />

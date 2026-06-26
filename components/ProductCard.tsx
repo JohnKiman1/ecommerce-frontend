@@ -1,4 +1,3 @@
-// components/ProductCard.tsx
 'use client'
 
 import { useState } from 'react'
@@ -47,6 +46,7 @@ export function ProductCard({ product }: ProductCardProps) {
             src={product.image || '/images/placeholder.png'}
             alt={product.name}
             fill
+            sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, 20vw"
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
           {!product.in_stock && (

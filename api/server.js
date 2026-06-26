@@ -115,12 +115,10 @@ app.get('/api/products', async (req, res) => {
     
     let query = supabase.from('products').select('*');
     
-    // Category filter
     if (category) {
       query = query.eq('category', category);
     }
     
-    // Price filter
     if (minPrice) {
       query = query.gte('price', parseFloat(minPrice));
     }
@@ -128,12 +126,10 @@ app.get('/api/products', async (req, res) => {
       query = query.lte('price', parseFloat(maxPrice));
     }
     
-    // Search filter
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
     
-    // Sorting
     if (sortBy) {
       const order = sortOrder === 'desc' ? 'desc' : 'asc';
       query = query.order(sortBy, { ascending: order === 'asc' });
@@ -172,14 +168,13 @@ app.get('/api/products/:id', async (req, res) => {
   }
 });
 
-// ✅ ADD: POST - Create a new product
+// POST - Create a new product
 app.post('/api/products', async (req, res) => {
   try {
     const { name, description, price, category, image, in_stock, sizes, rating, reviews } = req.body;
     
     console.log('📝 Creating new product:', name);
     
-    // Validate required fields
     if (!name || price === undefined || price === null) {
       return res.status(400).json({ error: 'Name and price are required' });
     }
@@ -209,7 +204,7 @@ app.post('/api/products', async (req, res) => {
   }
 });
 
-// ✅ ADD: PUT - Update a product
+// PUT - Update a product
 app.put('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -217,7 +212,6 @@ app.put('/api/products/:id', async (req, res) => {
     
     console.log('📝 Updating product:', id);
     
-    // Check if product exists
     const { data: existing, error: checkError } = await supabase
       .from('products')
       .select('id')
@@ -254,14 +248,13 @@ app.put('/api/products/:id', async (req, res) => {
   }
 });
 
-// ✅ ADD: DELETE - Delete a product
+// DELETE - Delete a product
 app.delete('/api/products/:id', async (req, res) => {
   try {
     const { id } = req.params;
     
     console.log('🗑️ Deleting product:', id);
     
-    // Check if product exists
     const { data: existing, error: checkError } = await supabase
       .from('products')
       .select('id')
@@ -316,7 +309,6 @@ app.post('/api/products/:id/reviews', async (req, res) => {
       return res.status(400).json({ error: 'User ID and rating are required' });
     }
     
-    // Insert review
     const { data, error } = await supabase
       .from('reviews')
       .insert([{ product_id: productId, user_id, rating, comment }])
@@ -324,7 +316,6 @@ app.post('/api/products/:id/reviews', async (req, res) => {
     
     if (error) throw error;
     
-    // Update product rating and review count
     const { data: reviews } = await supabase
       .from('reviews')
       .select('rating')
@@ -374,7 +365,6 @@ app.post('/api/cart', async (req, res) => {
   try {
     const { user_id, product_id, quantity, size } = req.body;
     
-    // Check if item already exists
     const { data: existing } = await supabase
       .from('cart_items')
       .select('id, quantity')
@@ -383,7 +373,6 @@ app.post('/api/cart', async (req, res) => {
       .maybeSingle();
     
     if (existing) {
-      // Update quantity
       const { data, error } = await supabase
         .from('cart_items')
         .update({ quantity: existing.quantity + (quantity || 1) })
@@ -393,7 +382,6 @@ app.post('/api/cart', async (req, res) => {
       if (error) throw error;
       res.json(data[0]);
     } else {
-      // Insert new item
       const { data, error } = await supabase
         .from('cart_items')
         .insert([{ user_id, product_id, quantity: quantity || 1, size }])
@@ -413,7 +401,6 @@ app.put('/api/cart/:id', async (req, res) => {
     const { quantity } = req.body;
     
     if (quantity <= 0) {
-      // Delete if quantity is 0
       const { error } = await supabase
         .from('cart_items')
         .delete()
@@ -470,40 +457,51 @@ app.delete('/api/cart/user/:userId', async (req, res) => {
 // ORDER ENDPOINTS
 // ============================================
 
-// CREATE order
+// CREATE order (existing)
 app.post('/api/orders', async (req, res) => {
+  // ... existing code
+});
+
+// GET user orders (existing)
+app.get('/api/orders/:userId', async (req, res) => {
+  // ... existing code
+});
+
+// ✅ ADD THIS: GET single order by ID
+app.get('/api/orders/:userId/:orderId', async (req, res) => {
   try {
-    const { user_id, items, subtotal, shipping, tax, total, shipping_address, payment_method } = req.body;
+    const { userId, orderId } = req.params;
+    
+    console.log(`📝 Fetching order ${orderId} for user ${userId}`);
     
     const { data, error } = await supabase
       .from('orders')
-      .insert([{
-        user_id,
-        subtotal,
-        shipping,
-        tax,
-        total,
-        shipping_address,
-        payment_method,
-        status: 'pending'
-      }])
-      .select();
+      .select('*')
+      .eq('id', orderId)
+      .eq('user_id', userId)
+      .single();
     
-    if (error) throw error;
+    if (error || !data) {
+      console.log('❌ Order not found:', orderId, 'for user:', userId);
+      return res.status(404).json({ error: 'Order not found' });
+    }
     
-    // Clear cart after order
-    await supabase
-      .from('cart_items')
-      .delete()
-      .eq('user_id', user_id);
+    // Parse JSON fields
+    const order = {
+      ...data,
+      items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
+      shipping_address: data.shipping_address ? (typeof data.shipping_address === 'string' ? JSON.parse(data.shipping_address) : data.shipping_address) : {}
+    };
     
-    res.status(201).json(data[0]);
+    console.log('✅ Single order fetched:', orderId);
+    res.json(order);
   } catch (error) {
+    console.error('❌ Single order error:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// GET user orders
+// GET user orders (existing)
 app.get('/api/orders/:userId', async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -512,9 +510,112 @@ app.get('/api/orders/:userId', async (req, res) => {
       .eq('user_id', req.params.userId)
       .order('created_at', { ascending: false });
     
-    if (error) throw error;
-    res.json(data || []);
+    if (error) {
+      console.error('❌ Orders fetch error:', error);
+      throw error;
+    }
+    
+    const ordersWithParsedFields = data.map(order => ({
+      ...order,
+      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [],
+      shipping_address: order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : {}
+    }));
+    
+    res.json(ordersWithParsedFields || []);
   } catch (error) {
+    console.error('❌ Orders error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ✅ ADD: GET single order by ID (NEW)
+app.get('/api/orders/:userId/:orderId', async (req, res) => {
+  try {
+    const { userId, orderId } = req.params;
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .eq('user_id', userId)
+      .single();
+    
+    if (error || !data) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    // Parse JSON fields
+    const order = {
+      ...data,
+      items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
+      shipping_address: data.shipping_address ? (typeof data.shipping_address === 'string' ? JSON.parse(data.shipping_address) : data.shipping_address) : {}
+    };
+    
+    res.json(order);
+  } catch (error) {
+    console.error('❌ Single order error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// GET user orders - Updated to parse items
+app.get('/api/orders/:userId', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('user_id', req.params.userId)
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error('❌ Orders fetch error:', error);
+      throw error;
+    }
+    
+    // Parse JSON fields
+    const ordersWithParsedFields = data.map(order => ({
+      ...order,
+      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : [],
+      shipping_address: order.shipping_address ? (typeof order.shipping_address === 'string' ? JSON.parse(order.shipping_address) : order.shipping_address) : {}
+    }));
+    
+    res.json(ordersWithParsedFields || []);
+  } catch (error) {
+    console.error('❌ Orders error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ✅ GET single order by ID
+app.get('/api/orders/:userId/:orderId', async (req, res) => {
+  try {
+    const { userId, orderId } = req.params;
+    
+    console.log(`📝 Fetching order ${orderId} for user ${userId}`);
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .eq('user_id', userId)
+      .single();
+    
+    if (error || !data) {
+      console.log('❌ Order not found:', orderId, 'for user:', userId);
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    // Parse JSON fields
+    const order = {
+      ...data,
+      items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
+      shipping_address: data.shipping_address ? (typeof data.shipping_address === 'string' ? JSON.parse(data.shipping_address) : data.shipping_address) : {}
+    };
+    
+    console.log('✅ Single order fetched:', orderId);
+    res.json(order);
+  } catch (error) {
+    console.error('❌ Single order error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -528,7 +629,7 @@ app.get('/api/profile/:userId', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('id, username, email, name, role, created_at')
+      .select('id, username, email, name, phone, role, created_at')
       .eq('id', req.params.userId)
       .single();
     
@@ -545,11 +646,11 @@ app.get('/api/profile/:userId', async (req, res) => {
 // UPDATE user profile
 app.put('/api/profile/:userId', async (req, res) => {
   try {
-    const { email, name } = req.body;
+    const { email, name, phone } = req.body;
     
     const { data, error } = await supabase
       .from('users')
-      .update({ email, name })
+      .update({ email, name, phone })
       .eq('id', req.params.userId)
       .select();
     
@@ -564,7 +665,6 @@ app.put('/api/profile/:userId', async (req, res) => {
   }
 });
 
-
 // ============================================
 // USER MANAGEMENT ENDPOINTS
 // ============================================
@@ -575,7 +675,7 @@ app.get('/api/users', async (req, res) => {
     console.log('📚 Fetching users...');
     const { data, error } = await supabase
       .from('users')
-      .select('id, username, email, name, role, created_at')
+      .select('id, username, email, name, phone, role, created_at')
       .order('id', { ascending: true });
     
     if (error) throw error;
@@ -591,7 +691,7 @@ app.get('/api/users/:id', async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('users')
-      .select('id, username, email, name, role, created_at')
+      .select('id, username, email, name, phone, role, created_at')
       .eq('id', req.params.id)
       .single();
     
@@ -612,12 +712,10 @@ app.put('/api/users/:id/role', async (req, res) => {
     
     console.log('📝 Updating user role:', id, '→', role);
     
-    // Validate role
     if (!['admin', 'viewer', 'locked'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' });
     }
     
-    // Check if user exists
     const { data: existing, error: checkError } = await supabase
       .from('users')
       .select('id, username')
@@ -632,7 +730,7 @@ app.put('/api/users/:id/role', async (req, res) => {
       .from('users')
       .update({ role })
       .eq('id', id)
-      .select('id, username, email, name, role, created_at');
+      .select('id, username, email, name, phone, role, created_at');
     
     if (error) throw error;
     
@@ -651,7 +749,6 @@ app.delete('/api/users/:id', async (req, res) => {
     
     console.log('🗑️ Deleting user:', id);
     
-    // Check if user exists
     const { data: existing, error: checkError } = await supabase
       .from('users')
       .select('id, username')
@@ -662,110 +759,6 @@ app.delete('/api/users/:id', async (req, res) => {
       return res.status(404).json({ error: 'User not found' });
     }
     
-    // Prevent deleting the last admin user
-    const { data: admins, error: countError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('role', 'admin');
-    
-    if (!countError && admins && admins.length <= 1 && existing.role === 'admin') {
-      return res.status(400).json({ error: 'Cannot delete the last admin user' });
-    }
-    
-    const { error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
-    
-    console.log('✅ User deleted:', existing.username);
-    res.json({ message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('❌ Delete user error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-// GET single user
-app.get('/api/users/:id', async (req, res) => {
-  try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('id, username, email, name, role, created_at')
-      .eq('id', req.params.id)
-      .single();
-    
-    if (error || !data) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    res.json(data);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// UPDATE user role
-app.put('/api/users/:id/role', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { role } = req.body;
-    
-    console.log('📝 Updating user role:', id, '→', role);
-    
-    // Validate role
-    if (!['admin', 'viewer', 'locked'].includes(role)) {
-      return res.status(400).json({ error: 'Invalid role' });
-    }
-    
-    // Check if user exists
-    const { data: existing, error: checkError } = await supabase
-      .from('users')
-      .select('id, username')
-      .eq('id', id)
-      .single();
-    
-    if (checkError || !existing) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    // Prevent changing your own role (to avoid locking yourself out)
-    // We'll handle this on the frontend with a warning
-    
-    const { data, error } = await supabase
-      .from('users')
-      .update({ role })
-      .eq('id', id)
-      .select('id, username, email, name, role, created_at');
-    
-    if (error) throw error;
-    
-    console.log('✅ User role updated:', existing.username, '→', role);
-    res.json(data[0]);
-  } catch (error) {
-    console.error('❌ Update role error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// DELETE user
-app.delete('/api/users/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    console.log('🗑️ Deleting user:', id);
-    
-    // Check if user exists
-    const { data: existing, error: checkError } = await supabase
-      .from('users')
-      .select('id, username')
-      .eq('id', id)
-      .single();
-    
-    if (checkError || !existing) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    
-    // Prevent deleting the last admin user
     const { data: admins, error: countError } = await supabase
       .from('users')
       .select('id')
@@ -797,13 +790,11 @@ app.post('/api/reset', async (req, res) => {
   try {
     console.log('🔄 Resetting database...');
     
-    // Clear all tables
     await supabase.from('cart_items').delete().neq('id', 0);
     await supabase.from('reviews').delete().neq('id', 0);
     await supabase.from('orders').delete().neq('id', 0);
     await supabase.from('products').delete().neq('id', 0);
     
-    // Re-insert products
     const products = [
       { name: 'Classic White T-Shirt', description: 'Premium cotton t-shirt', price: 29.99, category: 'clothing', image: '/images/product-1.png', rating: 4.5, reviews: 120, in_stock: true, sizes: ['S','M','L','XL'] },
       { name: 'Slim Fit Jeans', description: 'Modern slim fit jeans', price: 79.99, category: 'clothing', image: '/images/product-2.png', rating: 4.2, reviews: 85, in_stock: true, sizes: ['30','32','34','36'] },
@@ -856,8 +847,9 @@ app.listen(PORT, () => {
   console.log(`🚀 E-commerce API running on port ${PORT}`);
   console.log('📚 /api/products - Product CRUD (GET, POST, PUT, DELETE)');
   console.log('🛒 /api/cart - Cart operations');
-  console.log('📦 /api/orders - Order operations');
+  console.log('📦 /api/orders - Order operations (POST, GET, GET/:id)');
   console.log('👤 /api/profile - User profile');
+  console.log('👥 /api/users - User management');
   console.log('🔐 /api/login - Login');
   console.log('📝 /api/register - Register');
   console.log('🔄 /api/reset - Reset database');
