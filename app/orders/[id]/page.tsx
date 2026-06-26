@@ -23,7 +23,7 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; icon: a
   },
   confirmed: {
     label: 'Confirmed',
-    color: 'text-blue-600 bg-blue-50',
+    color: 'text-primary bg-primary/10',
     icon: CheckCircle,
     nextStatus: ['processing', 'cancelled']
   },
@@ -110,7 +110,7 @@ export default function OrderDetailPage() {
   }
 
   const getStatusColor = (status: string) => {
-    return STATUS_CONFIG[status as OrderStatus]?.color || 'text-gray-600 bg-gray-50'
+    return STATUS_CONFIG[status as OrderStatus]?.color || 'text-muted-foreground bg-muted'
   }
 
   const getStatusLabel = (status: string) => {
@@ -148,7 +148,7 @@ export default function OrderDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-gray-600">Loading order details...</p>
+          <p className="text-muted-foreground">Loading order details...</p>
         </div>
       </div>
     )
@@ -159,11 +159,11 @@ export default function OrderDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-gray-900">Order Not Found</h2>
-          <p className="text-gray-500 mt-2">This order doesn't exist or you don't have access.</p>
+          <h2 className="text-2xl font-bold text-foreground">Order Not Found</h2>
+          <p className="text-muted-foreground/80 mt-2">This order doesn't exist or you don't have access.</p>
           <Link
             href="/profile?tab=orders"
-            className="mt-6 inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="mt-6 inline-block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
           >
             View All Orders
           </Link>
@@ -176,12 +176,12 @@ export default function OrderDetailPage() {
   const statusConfig = STATUS_CONFIG[order.status as OrderStatus]
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-screen bg-muted py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Back Button */}
         <button
           onClick={() => router.push('/profile?tab=orders')}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors mb-6"
+          className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
           title="Go back to orders"
           aria-label="Go back to orders"
         >
@@ -190,11 +190,11 @@ export default function OrderDetailPage() {
         </button>
 
         {/* Order Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Order #{order.id}</h1>
-              <p className="text-sm text-gray-500">
+              <h1 className="text-2xl font-bold text-foreground">Order #{order.id}</h1>
+              <p className="text-sm text-muted-foreground/80">
                 Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'long',
@@ -213,11 +213,11 @@ export default function OrderDetailPage() {
 
         {/* Order Status Management (Admin Only) */}
         {user?.role === 'admin' && statusConfig.nextStatus && statusConfig.nextStatus.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <h3 className="font-semibold text-gray-900">Order Status Management</h3>
-                <p className="text-sm text-gray-500 mt-1">Update the status of this order</p>
+                <h3 className="font-semibold text-foreground">Order Status Management</h3>
+                <p className="text-sm text-muted-foreground/80 mt-1">Update the status of this order</p>
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 {statusConfig.nextStatus.map((nextStatus) => {
@@ -231,7 +231,7 @@ export default function OrderDetailPage() {
                       className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${
                         nextStatus === 'cancelled'
                           ? 'bg-red-600 text-white hover:bg-red-700'
-                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                          : 'bg-primary text-white hover:bg-primary/90'
                       } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                       {updating ? (
@@ -245,8 +245,8 @@ export default function OrderDetailPage() {
                 })}
               </div>
             </div>
-            <div className="mt-4 pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-3 text-sm text-gray-500">
+            <div className="mt-4 pt-4 border-t border-border">
+              <div className="flex items-center gap-3 text-sm text-muted-foreground/80">
                 <span>Current Status:</span>
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
                   <StatusIcon className="h-3 w-3" />
@@ -258,12 +258,12 @@ export default function OrderDetailPage() {
         )}
 
         {/* Order Items */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <h3 className="font-semibold text-gray-900 mb-4">Order Items</h3>
+        <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
+          <h3 className="font-semibold text-foreground mb-4">Order Items</h3>
           <div className="space-y-4">
             {(order.items || []).map((item: any, index: number) => (
               <div key={index} className="flex gap-4 pb-4 border-b border-gray-100 last:border-0">
-                <div className="h-16 w-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
+                <div className="h-16 w-16 bg-secondary rounded-lg flex-shrink-0 overflow-hidden">
                   <img 
                     src={item.image || '/images/placeholder.png'} 
                     alt={item.productName || 'Product'} 
@@ -273,13 +273,13 @@ export default function OrderDetailPage() {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="font-medium text-gray-900">{item.productName || `Product ${item.productId}`}</p>
-                      <p className="text-sm text-gray-500">Qty: {item.quantity}</p>
-                      {item.size && <p className="text-sm text-gray-500">Size: {item.size}</p>}
+                      <p className="font-medium text-foreground">{item.productName || `Product ${item.productId}`}</p>
+                      <p className="text-sm text-muted-foreground/80">Qty: {item.quantity}</p>
+                      {item.size && <p className="text-sm text-muted-foreground/80">Size: {item.size}</p>}
                     </div>
                     <div className="text-right">
-                      <p className="font-medium text-gray-900">${(item.price * item.quantity).toFixed(2)}</p>
-                      <p className="text-sm text-gray-500">${item.price.toFixed(2)} each</p>
+                      <p className="font-medium text-foreground">${(item.price * item.quantity).toFixed(2)}</p>
+                      <p className="text-sm text-muted-foreground/80">${item.price.toFixed(2)} each</p>
                     </div>
                   </div>
                 </div>
@@ -290,27 +290,27 @@ export default function OrderDetailPage() {
 
         {/* ✅ Rate Your Products Section - Only for delivered orders */}
         {order.status === 'delivered' && order.items && order.items.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6 mb-6">
             <div className="flex items-center gap-3 mb-4">
               <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />
-              <h3 className="text-lg font-semibold text-gray-900">Rate Your Products</h3>
+              <h3 className="text-lg font-semibold text-foreground">Rate Your Products</h3>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
+            <p className="text-sm text-muted-foreground mb-4">
               Help other customers by sharing your experience with these products.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {order.items.map((item: any) => (
-                <div key={item.productId} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-gray-50 transition-colors">
+                <div key={item.productId} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg hover:bg-muted transition-colors">
                   <img 
                     src={item.image || '/images/placeholder.png'} 
                     alt={item.productName} 
-                    className="h-12 w-12 object-cover rounded-lg bg-gray-100"
+                    className="h-12 w-12 object-cover rounded-lg bg-secondary"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">{item.productName}</p>
+                    <p className="text-sm font-medium text-foreground truncate">{item.productName}</p>
                     <button
                       onClick={() => router.push(`/product/${item.productId}?rate=true`)}
-                      className="text-sm text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
+                      className="text-sm text-primary hover:text-blue-800 transition-colors flex items-center gap-1"
                     >
                       <Star className="h-3.5 w-3.5" />
                       Write a Review
@@ -324,9 +324,9 @@ export default function OrderDetailPage() {
 
         {/* Order Summary */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Shipping Address</h3>
-            <div className="space-y-1 text-sm text-gray-600">
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+            <h3 className="font-semibold text-foreground mb-4">Shipping Address</h3>
+            <div className="space-y-1 text-sm text-muted-foreground">
               {order.shipping_address && typeof order.shipping_address === 'object' ? (
                 <>
                   {order.shipping_address.firstName && (
@@ -341,26 +341,26 @@ export default function OrderDetailPage() {
               )}
             </div>
           </div>
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h3 className="font-semibold text-gray-900 mb-4">Payment Summary</h3>
+          <div className="bg-card rounded-lg shadow-sm border border-border p-6">
+            <h3 className="font-semibold text-foreground mb-4">Payment Summary</h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Subtotal</span>
-                <span className="text-gray-900">${(order.subtotal || 0).toFixed(2)}</span>
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-foreground">${(order.subtotal || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Shipping</span>
-                <span className="text-gray-900">${(order.shipping || 0).toFixed(2)}</span>
+                <span className="text-muted-foreground">Shipping</span>
+                <span className="text-foreground">${(order.shipping || 0).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Tax</span>
-                <span className="text-gray-900">${(order.tax || 0).toFixed(2)}</span>
+                <span className="text-muted-foreground">Tax</span>
+                <span className="text-foreground">${(order.tax || 0).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between border-t border-gray-200 pt-2 font-bold">
-                <span className="text-gray-900">Total</span>
-                <span className="text-blue-600">${(order.total || 0).toFixed(2)}</span>
+              <div className="flex justify-between border-t border-border pt-2 font-bold">
+                <span className="text-foreground">Total</span>
+                <span className="text-primary">${(order.total || 0).toFixed(2)}</span>
               </div>
-              <div className="flex items-center gap-2 pt-2 text-sm text-gray-500">
+              <div className="flex items-center gap-2 pt-2 text-sm text-muted-foreground/80">
                 <CreditCard className="h-4 w-4" />
                 <span>Paid via {order.payment_method ? order.payment_method.replace('_', ' ').toUpperCase() : 'Credit Card'}</span>
               </div>

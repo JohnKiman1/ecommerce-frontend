@@ -102,23 +102,23 @@ export default function AdminProducts() {
       {/* Confirmation Dialog */}
       {showConfirmDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slide-in">
+          <div className="bg-card rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slide-in">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Confirm Delete</h3>
+              <h3 className="text-lg font-semibold text-foreground">Confirm Delete</h3>
               <button
                 onClick={cancelDelete}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-secondary rounded-lg transition-colors"
                 aria-label="Close"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-muted-foreground/80" />
               </button>
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Are you sure you want to delete <strong>"{productNameToDelete}"</strong>?
               </p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground/80 mt-1">
                 This action cannot be undone.
               </p>
             </div>
@@ -126,7 +126,7 @@ export default function AdminProducts() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={cancelDelete}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors"
               >
                 Cancel
               </button>
@@ -144,14 +144,14 @@ export default function AdminProducts() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Products</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Products</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">
             Manage your product inventory
           </p>
         </div>
         <Link
           href="/admin/products/add"
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-sm"
         >
           <Plus className="h-5 w-5" />
           Add Product
@@ -177,38 +177,38 @@ export default function AdminProducts() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <Package className="h-5 w-5 text-blue-600" />
+            <div className="p-2 bg-primary/20 rounded-lg">
+              <Package className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Total Products</p>
-              <p className="text-xl font-bold text-gray-900">{products.length}</p>
+              <p className="text-sm text-muted-foreground/80">Total Products</p>
+              <p className="text-xl font-bold text-foreground">{products.length}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-green-100 rounded-lg">
               <Package className="h-5 w-5 text-green-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">In Stock</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-muted-foreground/80">In Stock</p>
+              <p className="text-xl font-bold text-foreground">
                 {products.filter(p => p.in_stock).length}
               </p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-red-100 rounded-lg">
               <AlertCircle className="h-5 w-5 text-red-600" />
             </div>
             <div>
-              <p className="text-sm text-gray-500">Out of Stock</p>
-              <p className="text-xl font-bold text-gray-900">
+              <p className="text-sm text-muted-foreground/80">Out of Stock</p>
+              <p className="text-xl font-bold text-foreground">
                 {products.filter(p => !p.in_stock).length}
               </p>
             </div>
@@ -223,24 +223,24 @@ export default function AdminProducts() {
       )}
 
       {/* Products Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Category</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Price</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Stock</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Name</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Category</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Price</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Stock</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900 font-medium">{product.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600 capitalize">{product.category}</td>
-                  <td className="px-6 py-4 text-sm text-gray-900">${product.price.toFixed(2)}</td>
+                <tr key={product.id} className="hover:bg-muted transition-colors">
+                  <td className="px-6 py-4 text-sm text-foreground font-medium">{product.name}</td>
+                  <td className="px-6 py-4 text-sm text-muted-foreground capitalize">{product.category}</td>
+                  <td className="px-6 py-4 text-sm text-foreground">${product.price.toFixed(2)}</td>
                   <td className="px-6 py-4 text-sm">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       product.in_stock 
@@ -254,7 +254,7 @@ export default function AdminProducts() {
                     <div className="flex items-center gap-3">
                       <Link
                         href={`/admin/products/${product.id}/edit`}
-                        className="text-blue-600 hover:text-blue-800 transition-colors"
+                        className="text-primary hover:text-blue-800 transition-colors"
                         aria-label={`Edit ${product.name}`}
                         title={`Edit ${product.name}`}
                       >
@@ -283,11 +283,11 @@ export default function AdminProducts() {
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No products found</p>
+            <p className="text-muted-foreground/80">No products found</p>
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="mt-2 text-blue-600 hover:text-blue-800 text-sm"
+                className="mt-2 text-primary hover:text-blue-800 text-sm"
               >
                 Clear search
               </button>

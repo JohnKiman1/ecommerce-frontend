@@ -130,7 +130,7 @@ export default function ProductDetailClient({
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading product...</p>
+          <p className="mt-4 text-muted-foreground">Loading product...</p>
         </div>
       </div>
     )
@@ -140,11 +140,11 @@ export default function ProductDetailClient({
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
-          <h1 className="text-3xl font-bold text-gray-900">Product not found</h1>
-          <p className="text-gray-600">The product you're looking for doesn't exist.</p>
+          <h1 className="text-3xl font-bold text-foreground">Product not found</h1>
+          <p className="text-muted-foreground">The product you're looking for doesn't exist.</p>
           <button
             onClick={() => router.push('/shop')}
-            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-primary hover:text-blue-800 font-semibold transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to shop
@@ -160,12 +160,12 @@ export default function ProductDetailClient({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       {/* Breadcrumb */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+          className="flex items-center gap-2 text-primary hover:text-blue-800 font-semibold transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -174,10 +174,10 @@ export default function ProductDetailClient({
 
       {/* Product */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-white rounded-lg p-6 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-card rounded-lg p-6 shadow-sm">
           {/* Image */}
           <div className="flex items-center justify-center">
-            <div className="relative w-full aspect-square rounded-lg bg-gray-100 overflow-hidden">
+            <div className="relative w-full aspect-square rounded-lg bg-secondary overflow-hidden">
               <Image
                 src={product.image || '/images/placeholder.png'}
                 alt={product.name}
@@ -192,8 +192,8 @@ export default function ProductDetailClient({
           {/* Details */}
           <div className="space-y-6">
             <div className="space-y-2">
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{product.name}</h1>
-              <p className="text-lg text-gray-600">{product.description}</p>
+              <h1 className="text-3xl md:text-4xl font-bold text-foreground">{product.name}</h1>
+              <p className="text-lg text-muted-foreground">{product.description}</p>
             </div>
 
             {/* Rating */}
@@ -210,20 +210,20 @@ export default function ProductDetailClient({
                   />
                 ))}
               </div>
-              <span className="text-sm text-gray-600">
+              <span className="text-sm text-muted-foreground">
                 {product.rating || 0} rating ({product.reviews || 0} reviews)
               </span>
             </div>
 
             {/* Price */}
             <div className="space-y-2">
-              <span className="text-sm font-semibold text-gray-600 uppercase">Price</span>
-              <p className="text-4xl font-bold text-blue-600">${(product.price || 0).toFixed(2)}</p>
+              <span className="text-sm font-semibold text-muted-foreground uppercase">Price</span>
+              <p className="text-4xl font-bold text-primary">${(product.price || 0).toFixed(2)}</p>
             </div>
 
             {/* Stock */}
             <div className="space-y-2">
-              <span className="text-sm font-semibold text-gray-600 uppercase">Availability</span>
+              <span className="text-sm font-semibold text-muted-foreground uppercase">Availability</span>
               <p className={`font-semibold ${product.in_stock ? 'text-green-600' : 'text-red-600'}`}>
                 {product.in_stock ? 'In Stock' : 'Out of Stock'}
               </p>
@@ -232,7 +232,7 @@ export default function ProductDetailClient({
             {/* Size Selection */}
             {product.sizes && product.sizes.length > 0 && (
               <div className="space-y-3">
-                <span className="text-sm font-semibold text-gray-600 uppercase">Size</span>
+                <span className="text-sm font-semibold text-muted-foreground uppercase">Size</span>
                 <div className="grid grid-cols-4 gap-2">
                   {product.sizes.map((size) => (
                     <button
@@ -240,7 +240,7 @@ export default function ProductDetailClient({
                       onClick={() => setSelectedSize(size)}
                       className={`py-2 rounded-lg border transition-colors ${
                         selectedSize === size
-                          ? 'border-blue-600 bg-blue-600 text-white'
+                          ? 'border-blue-600 bg-primary text-white'
                           : 'border-gray-300 hover:border-blue-600'
                       }`}
                     >
@@ -253,18 +253,18 @@ export default function ProductDetailClient({
 
             {/* Quantity */}
             <div className="space-y-3">
-              <span className="text-sm font-semibold text-gray-600 uppercase">Quantity</span>
+              <span className="text-sm font-semibold text-muted-foreground uppercase">Quantity</span>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-secondary transition-colors"
                 >
                   −
                 </button>
                 <span className="text-lg font-semibold">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition-colors"
+                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-secondary transition-colors"
                 >
                   +
                 </button>
@@ -275,21 +275,21 @@ export default function ProductDetailClient({
             <button
               onClick={handleAddToCart}
               disabled={!product.in_stock}
-              className="w-full py-3 px-6 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 px-6 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               <ShoppingBag className="h-5 w-5" />
               {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
             </button>
 
             {/* Product Details */}
-            <div className="border-t border-gray-200 pt-6 space-y-4">
+            <div className="border-t border-border pt-6 space-y-4">
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Shipping</h3>
-                <p className="text-sm text-gray-600">Free shipping on orders over $50. Delivery in 3-5 business days.</p>
+                <h3 className="font-semibold text-foreground mb-2">Shipping</h3>
+                <p className="text-sm text-muted-foreground">Free shipping on orders over $50. Delivery in 3-5 business days.</p>
               </div>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-2">Returns</h3>
-                <p className="text-sm text-gray-600">30-day return policy. No questions asked.</p>
+                <h3 className="font-semibold text-foreground mb-2">Returns</h3>
+                <p className="text-sm text-muted-foreground">30-day return policy. No questions asked.</p>
               </div>
             </div>
           </div>
@@ -298,8 +298,8 @@ export default function ProductDetailClient({
 
       {/* ✅ Reviews Section */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Customer Reviews</h2>
+        <div className="bg-card rounded-lg p-6 shadow-sm border border-border">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Customer Reviews</h2>
           <Reviews 
             productId={product.id} 
             productName={product.name}
@@ -310,8 +310,8 @@ export default function ProductDetailClient({
 
       {/* Related Products */}
       {relatedProducts.length > 0 && (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 border-t border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Related Products</h2>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 border-t border-border">
+          <h2 className="text-2xl font-bold text-foreground mb-8">Related Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {relatedProducts.map((p) => (
               <ProductCard key={p.id} product={p} />

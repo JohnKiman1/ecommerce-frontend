@@ -30,7 +30,7 @@ const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; icon: a
   },
   confirmed: {
     label: 'Confirmed',
-    color: 'bg-blue-100 text-blue-800',
+    color: 'bg-primary/20 text-blue-800',
     icon: CheckCircle,
     nextStatus: ['processing', 'cancelled']
   },
@@ -156,13 +156,13 @@ export default function AdminOrders() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Orders</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage all customer orders</p>
+          <h1 className="text-3xl font-bold text-foreground">Orders</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">Manage all customer orders</p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={fetchOrders}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
           >
             Refresh
           </button>
@@ -171,14 +171,14 @@ export default function AdminOrders() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Total</p>
-          <p className="text-xl font-bold text-gray-900">{orders.length}</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
+          <p className="text-sm text-muted-foreground/80">Total</p>
+          <p className="text-xl font-bold text-foreground">{orders.length}</p>
         </div>
         {Object.entries(STATUS_CONFIG).map(([status, config]) => (
-          <div key={status} className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-            <p className="text-sm text-gray-500">{config.label}</p>
-            <p className="text-xl font-bold text-gray-900">{statusCounts[status] || 0}</p>
+          <div key={status} className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
+            <p className="text-sm text-muted-foreground/80">{config.label}</p>
+            <p className="text-xl font-bold text-foreground">{statusCounts[status] || 0}</p>
           </div>
         ))}
       </div>
@@ -225,18 +225,18 @@ export default function AdminOrders() {
       )}
 
       {/* Orders Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Order ID</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Customer</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Total</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Items</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Order ID</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Customer</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Date</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Total</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Items</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -245,24 +245,24 @@ export default function AdminOrders() {
                 const StatusIcon = statusConfig.icon
                 
                 return (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                  <tr key={order.id} className="hover:bg-muted transition-colors">
+                    <td className="px-6 py-4 text-sm font-medium text-foreground">
                       #{order.id}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       User #{order.user_id}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       {new Date(order.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric'
                       })}
                     </td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                    <td className="px-6 py-4 text-sm font-medium text-foreground">
                       ${order.total.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm text-muted-foreground">
                       {order.items?.length || 0}
                     </td>
                     <td className="px-6 py-4">
@@ -283,11 +283,11 @@ export default function AdminOrders() {
                                   key={nextStatus}
                                   onClick={() => handleStatusUpdate(order.id, nextStatus)}
                                   disabled={updatingId === order.id}
-                                  className="p-1.5 rounded hover:bg-gray-100 transition-colors disabled:opacity-50"
+                                  className="p-1.5 rounded hover:bg-secondary transition-colors disabled:opacity-50"
                                   title={`Mark as ${nextConfig.label}`}
                                   aria-label={`Mark order #${order.id} as ${nextConfig.label}`}
                                 >
-                                  <NextIcon className="h-4 w-4 text-gray-600" />
+                                  <NextIcon className="h-4 w-4 text-muted-foreground" />
                                 </button>
                               )
                             })}
@@ -295,11 +295,11 @@ export default function AdminOrders() {
                         )}
                         <Link
                         href={`/orders/${order.id}`}
-                        className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                        className="p-1.5 rounded hover:bg-secondary transition-colors"
                         title="View Order"
                         aria-label={`View order #${order.id}`}
                         >
-                        <Eye className="h-4 w-4 text-blue-600" />
+                        <Eye className="h-4 w-4 text-primary" />
                         </Link>
                       </div>
                     </td>
@@ -312,7 +312,7 @@ export default function AdminOrders() {
         {filteredOrders.length === 0 && (
           <div className="text-center py-12">
             <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500">No orders found</p>
+            <p className="text-muted-foreground/80">No orders found</p>
           </div>
         )}
       </div>

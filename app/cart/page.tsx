@@ -103,11 +103,11 @@ export default function CartPage() {
       <div className="min-h-screen flex items-center justify-center py-12 px-4">
         <div className="text-center space-y-6 max-w-md">
           <ShoppingBag className="h-16 w-16 text-gray-300 mx-auto" />
-          <h1 className="text-3xl font-bold text-gray-900">Your cart is empty</h1>
-          <p className="text-gray-600">Start shopping to add items to your cart</p>
+          <h1 className="text-3xl font-bold text-foreground">Your cart is empty</h1>
+          <p className="text-muted-foreground">Start shopping to add items to your cart</p>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="inline-flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
           >
             Continue Shopping
             <ArrowRight className="h-4 w-4" />
@@ -123,7 +123,7 @@ export default function CartPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading your cart...</p>
+          <p className="mt-4 text-muted-foreground">Loading your cart...</p>
         </div>
       </div>
     )
@@ -134,24 +134,24 @@ export default function CartPage() {
       {/* Custom Clear Cart Confirmation Dialog */}
       {showClearCartDialog && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slide-in">
+          <div className="bg-card rounded-lg shadow-xl max-w-md w-full mx-4 p-6 animate-slide-in">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Clear Cart</h3>
+              <h3 className="text-lg font-semibold text-foreground">Clear Cart</h3>
               <button
                 onClick={cancelClearCart}
-                className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
+                className="p-1 hover:bg-secondary rounded-lg transition-colors"
                 aria-label="Close"
                 title="Close"
               >
-                <X className="h-5 w-5 text-gray-500" />
+                <X className="h-5 w-5 text-muted-foreground/80" />
               </button>
             </div>
             
             <div className="mb-6">
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Are you sure you want to clear your cart?
               </p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-muted-foreground/80 mt-1">
                 This action cannot be undone.
               </p>
             </div>
@@ -159,7 +159,7 @@ export default function CartPage() {
             <div className="flex gap-3 justify-end">
               <button
                 onClick={cancelClearCart}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-4 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors"
                 title="Cancel"
                 aria-label="Cancel"
               >
@@ -179,7 +179,7 @@ export default function CartPage() {
       )}
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">Shopping Cart</h1>
 
         {error && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600">
@@ -195,9 +195,9 @@ export default function CartPage() {
               const availableSizes = product?.sizes || []
               
               return (
-                <div key={item.id} className="flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-gray-200 bg-white">
+                <div key={item.id} className="flex flex-col sm:flex-row gap-4 p-4 rounded-lg border border-border bg-card">
                   {/* Product Image */}
-                  <div className="relative w-20 h-20 rounded-lg bg-gray-100 flex-shrink-0 overflow-hidden">
+                  <div className="relative w-20 h-20 rounded-lg bg-secondary flex-shrink-0 overflow-hidden">
                     <Image
                       src={product?.image || '/images/placeholder.png'}
                       alt={product?.name || 'Product'}
@@ -208,7 +208,7 @@ export default function CartPage() {
 
                   {/* Product Details */}
                   <div className="flex-1 space-y-2">
-                    <Link href={`/product/${item.product_id}`} className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                    <Link href={`/product/${item.product_id}`} className="font-semibold text-foreground hover:text-primary transition-colors">
                       {product?.name || 'Product'}
                     </Link>
                     
@@ -232,14 +232,14 @@ export default function CartPage() {
                           <button
                             onClick={() => handleSizeChange(item.id, selectedSize)}
                             disabled={isUpdating === item.id}
-                            className="px-2 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            className="px-2 py-1 text-xs bg-primary text-white rounded hover:bg-primary/90 transition-colors disabled:opacity-50"
                             title="Save size"
                           >
                             Save
                           </button>
                           <button
                             onClick={() => setEditingItemId(null)}
-                            className="px-2 py-1 text-xs border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
+                            className="px-2 py-1 text-xs border border-gray-300 text-foreground/80 rounded hover:bg-muted transition-colors"
                             title="Cancel"
                           >
                             Cancel
@@ -248,8 +248,8 @@ export default function CartPage() {
                       ) : (
                         // View mode
                         <div className="flex items-center gap-2">
-                          <p className="text-sm text-gray-500">
-                            Size: <span className="font-medium text-gray-700">{item.size || 'Not selected'}</span>
+                          <p className="text-sm text-muted-foreground/80">
+                            Size: <span className="font-medium text-foreground/80">{item.size || 'Not selected'}</span>
                           </p>
                           {availableSizes.length > 0 && (
                             <button
@@ -257,7 +257,7 @@ export default function CartPage() {
                                 setEditingItemId(item.id)
                                 setSelectedSize(item.size || availableSizes[0])
                               }}
-                              className="text-xs text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1"
+                              className="text-xs text-primary hover:text-blue-800 transition-colors flex items-center gap-1"
                               title="Change size"
                             >
                               <Pencil className="h-3 w-3" />
@@ -268,7 +268,7 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    <p className="font-semibold text-lg text-gray-900">${(product?.price || 0).toFixed(2)}</p>
+                    <p className="font-semibold text-lg text-foreground">${(product?.price || 0).toFixed(2)}</p>
                   </div>
 
                   {/* Quantity and Remove */}
@@ -277,7 +277,7 @@ export default function CartPage() {
                       <button
                         onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                         disabled={isUpdating === item.id || item.quantity <= 1}
-                        className="px-2 py-1 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        className="px-2 py-1 hover:bg-secondary transition-colors disabled:opacity-50"
                         aria-label="Decrease quantity"
                         title="Decrease quantity"
                       >
@@ -287,7 +287,7 @@ export default function CartPage() {
                       <button
                         onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                         disabled={isUpdating === item.id}
-                        className="px-2 py-1 hover:bg-gray-100 transition-colors disabled:opacity-50"
+                        className="px-2 py-1 hover:bg-secondary transition-colors disabled:opacity-50"
                         aria-label="Increase quantity"
                         title="Increase quantity"
                       >
@@ -324,34 +324,34 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="rounded-lg border border-gray-200 bg-white p-6 space-y-4 sticky top-20">
-              <h2 className="text-xl font-bold text-gray-900">Order Summary</h2>
+            <div className="rounded-lg border border-border bg-card p-6 space-y-4 sticky top-20">
+              <h2 className="text-xl font-bold text-foreground">Order Summary</h2>
 
-              <div className="space-y-3 border-t border-gray-200 pt-4">
-                <div className="flex justify-between text-gray-600">
+              <div className="space-y-3 border-t border-border pt-4">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal ({totalItems} items)</span>
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
                   <span>{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-muted-foreground">
                   <span>Tax</span>
                   <span>${tax.toFixed(2)}</span>
                 </div>
                 {subtotal > 100 && <p className="text-sm text-green-600 font-semibold">✓ Free shipping applied!</p>}
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
+              <div className="border-t border-border pt-4">
                 <div className="flex justify-between items-center mb-4">
-                  <span className="font-bold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">${total.toFixed(2)}</span>
+                  <span className="font-bold text-foreground">Total</span>
+                  <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
                 </div>
 
                 <Link
                   href="/checkout"
-                  className="block w-full py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold text-center"
+                  className="block w-full py-3 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold text-center"
                 >
                   Proceed to Checkout
                 </Link>
@@ -359,7 +359,7 @@ export default function CartPage() {
 
               <Link
                 href="/shop"
-                className="block w-full py-2 px-4 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-center font-semibold"
+                className="block w-full py-2 px-4 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors text-center font-semibold"
               >
                 Continue Shopping
               </Link>

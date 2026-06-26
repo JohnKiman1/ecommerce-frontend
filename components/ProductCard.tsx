@@ -41,7 +41,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <Link href={productLink}>
       <div className="group cursor-pointer">
         {/* Product Image */}
-        <div className="relative overflow-hidden rounded-lg bg-gray-100 mb-4 aspect-square">
+        <div className="relative overflow-hidden rounded-lg bg-secondary mb-4 aspect-square">
           <Image
             src={product.image || '/images/placeholder.png'}
             alt={product.name}
@@ -58,12 +58,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
         {/* Product Info */}
         <div className="space-y-2">
-          <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
+          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
             {product.name}
           </h3>
 
           {/* Category */}
-          <p className="text-sm text-gray-500 capitalize">{product.category}</p>
+          <p className="text-sm text-muted-foreground/80 capitalize">{product.category}</p>
 
           {/* Rating */}
           <div className="flex items-center gap-2">
@@ -79,12 +79,12 @@ export function ProductCard({ product }: ProductCardProps) {
                 />
               ))}
             </div>
-            <span className="text-xs text-gray-500">({product.reviews || 0})</span>
+            <span className="text-xs text-muted-foreground/80">({product.reviews || 0})</span>
           </div>
 
           {/* Price and Action */}
           <div className="flex items-center justify-between pt-2">
-            <span className="font-bold text-lg text-gray-900">
+            <span className="font-bold text-lg text-foreground">
               ${(product.price || 0).toFixed(2)}
             </span>
             <button
@@ -92,8 +92,8 @@ export function ProductCard({ product }: ProductCardProps) {
               disabled={!product.in_stock || isAdding}
               className={`p-2 rounded-lg transition-colors ${
                 product.in_stock && !isAdding
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-primary text-white hover:bg-primary/90'
+                  : 'bg-gray-300 text-muted-foreground/80 cursor-not-allowed'
               }`}
               aria-label={`Add ${product.name} to cart`}
             >

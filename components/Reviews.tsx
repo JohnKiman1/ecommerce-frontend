@@ -151,9 +151,9 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
   return (
     <div className="space-y-6">
       {/* Rating Summary */}
-      <div className="flex items-center gap-6 pb-4 border-b border-gray-200">
+      <div className="flex items-center gap-6 pb-4 border-b border-border">
         <div className="text-center">
-          <div className="text-4xl font-bold text-gray-900">
+          <div className="text-4xl font-bold text-foreground">
             {averageRating.toFixed(1)}
           </div>
           <div className="flex items-center gap-0.5 mt-1">
@@ -168,7 +168,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
               />
             ))}
           </div>
-          <p className="text-sm text-gray-500 mt-1">{reviews.length} reviews</p>
+          <p className="text-sm text-muted-foreground/80 mt-1">{reviews.length} reviews</p>
         </div>
       </div>
 
@@ -179,7 +179,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
             !showForm ? (
               <button
                 onClick={() => setShowForm(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
                 title="Write a review for this product"
                 aria-label="Write a review for this product"
               >
@@ -208,9 +208,9 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
 
       {/* Review Form */}
       {showForm && !hasReviewed && reviewCheckComplete && (
-        <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+        <form onSubmit={handleSubmit} className="bg-muted rounded-lg p-4 border border-border">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Write a Review</h3>
+            <h3 className="font-semibold text-foreground">Write a Review</h3>
             <button
               type="button"
               onClick={() => {
@@ -218,7 +218,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
                 setRating(0)
                 setComment('')
               }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              className="text-gray-400 hover:text-muted-foreground transition-colors"
               title="Close review form"
               aria-label="Close review form"
             >
@@ -259,7 +259,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm disabled:opacity-50"
+              className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm disabled:opacity-50"
               title="Submit your review"
               aria-label="Submit your review"
             >
@@ -272,7 +272,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
                 setRating(0)
                 setComment('')
               }}
-              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
+              className="px-4 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors text-sm"
               title="Cancel review"
               aria-label="Cancel review"
             >
@@ -287,15 +287,15 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
         <div 
           ref={userReviewRef}
           id="user-review"
-          className="bg-blue-50 rounded-lg p-4 border border-blue-200"
+          className="bg-primary/10 rounded-lg p-4 border border-blue-200"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
-                <User className="h-4 w-4 text-blue-600" />
+                <User className="h-4 w-4 text-primary" />
               </div>
               <div>
-                <p className="font-medium text-gray-900">Your Review</p>
+                <p className="font-medium text-foreground">Your Review</p>
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <Star
@@ -321,15 +321,15 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
               </button>
             )}
           </div>
-          <p className="text-sm text-gray-600 mt-2">{userReview.comment}</p>
+          <p className="text-sm text-muted-foreground mt-2">{userReview.comment}</p>
         </div>
       )}
 
       {/* All Reviews */}
       <div className="space-y-4">
-        <h3 className="font-semibold text-gray-900">All Reviews</h3>
+        <h3 className="font-semibold text-foreground">All Reviews</h3>
         {reviews.length === 0 ? (
-          <p className="text-gray-500 text-sm">No reviews yet. Be the first to review!</p>
+          <p className="text-muted-foreground/80 text-sm">No reviews yet. Be the first to review!</p>
         ) : (
           reviews.map((review) => {
             if (user && review.user_id === user.id) return null
@@ -338,10 +338,10 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
-                      <User className="h-4 w-4 text-gray-600" />
+                      <User className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">
+                      <p className="font-medium text-foreground">
                         {review.users?.name || review.users?.username || 'Anonymous'}
                       </p>
                       <div className="flex items-center gap-1">
@@ -366,7 +366,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
                     })}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mt-2">{review.comment}</p>
+                <p className="text-sm text-muted-foreground mt-2">{review.comment}</p>
               </div>
             )
           })

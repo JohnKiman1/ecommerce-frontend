@@ -166,7 +166,7 @@ export default function AddProduct() {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Add Product</h1>
+      <h1 className="text-3xl font-bold text-foreground mb-8">Add Product</h1>
 
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4">
@@ -174,10 +174,10 @@ export default function AddProduct() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6 bg-white rounded-lg shadow-sm p-6">
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6 bg-card rounded-lg shadow-sm p-6">
         {/* Image Upload with Drag & Drop */}
         <div>
-          <label htmlFor="image-upload" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="image-upload" className="block text-sm font-medium text-foreground/80 mb-1">
             Product Image
           </label>
           
@@ -185,7 +185,7 @@ export default function AddProduct() {
             id="image-upload"
             className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
               dragActive 
-                ? 'border-blue-500 bg-blue-50' 
+                ? 'border-blue-500 bg-primary/10' 
                 : 'border-gray-300 hover:border-gray-400'
             }`}
             onDragEnter={handleDrag}
@@ -228,10 +228,10 @@ export default function AddProduct() {
                 <div className="flex justify-center" aria-hidden="true">
                   <Upload className="h-12 w-12 text-gray-400" />
                 </div>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Drag and drop an image here, or click to select
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-muted-foreground/80">
                   Supports JPG, PNG, GIF up to 5MB (will be compressed)
                 </p>
               </div>
@@ -254,7 +254,7 @@ export default function AddProduct() {
 
         {/* Product Name */}
         <div>
-          <label htmlFor="add-name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="add-name" className="block text-sm font-medium text-foreground/80 mb-1">
             Product Name *
           </label>
           <input
@@ -271,7 +271,7 @@ export default function AddProduct() {
 
         {/* Description */}
         <div>
-          <label htmlFor="add-description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="add-description" className="block text-sm font-medium text-foreground/80 mb-1">
             Description
           </label>
           <textarea
@@ -288,7 +288,7 @@ export default function AddProduct() {
         {/* Price & Category */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="add-price" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="add-price" className="block text-sm font-medium text-foreground/80 mb-1">
               Price *
             </label>
             <input
@@ -306,7 +306,7 @@ export default function AddProduct() {
           </div>
 
           <div>
-            <label htmlFor="add-category" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="add-category" className="block text-sm font-medium text-foreground/80 mb-1">
               Category
             </label>
             <select
@@ -326,7 +326,7 @@ export default function AddProduct() {
 
         {/* Sizes */}
         <div>
-          <label htmlFor="add-sizes" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="add-sizes" className="block text-sm font-medium text-foreground/80 mb-1">
             Sizes (comma separated)
           </label>
           <input
@@ -347,20 +347,20 @@ export default function AddProduct() {
               type="checkbox"
               checked={formData.in_stock}
               onChange={(e) => setFormData({ ...formData, in_stock: e.target.checked })}
-              className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+              className="h-4 w-4 text-primary rounded focus:ring-blue-500"
               aria-label="Product in stock"
               title="Toggle stock status"
             />
-            <span className="text-sm text-gray-700">In Stock</span>
+            <span className="text-sm text-foreground/80">In Stock</span>
           </label>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4 pt-4 border-t border-gray-200">
+        <div className="flex gap-4 pt-4 border-t border-border">
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -373,7 +373,7 @@ export default function AddProduct() {
           </button>
           <a
             href="/admin/products"
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-6 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors"
           >
             Cancel
           </a>

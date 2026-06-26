@@ -92,7 +92,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     <form onSubmit={handleSubmit} className="space-y-4">
       {mode === 'register' && (
         <div>
-          <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-2">
             Full Name
           </label>
           <input
@@ -102,7 +102,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             value={formData.name}
             onChange={handleChange}
             placeholder="John Doe"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
           {errors.name && <p className="text-sm text-red-600 mt-1">{errors.name}</p>}
         </div>
@@ -110,7 +110,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       {mode === 'register' && (
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="email" className="block text-sm font-medium text-foreground/80 mb-2">
             Email
           </label>
           <input
@@ -120,14 +120,14 @@ export function AuthForm({ mode }: AuthFormProps) {
             value={formData.email}
             onChange={handleChange}
             placeholder="you@example.com"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
           {errors.email && <p className="text-sm text-red-600 mt-1">{errors.email}</p>}
         </div>
       )}
 
       <div>
-        <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="username" className="block text-sm font-medium text-foreground/80 mb-2">
           {mode === 'login' ? 'Username' : 'Choose a Username'}
         </label>
         <input
@@ -137,18 +137,18 @@ export function AuthForm({ mode }: AuthFormProps) {
           value={formData.username}
           onChange={handleChange}
           placeholder={mode === 'login' ? 'Enter your username' : 'Choose a unique username'}
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
         />
         {errors.username && <p className="text-sm text-red-600 mt-1">{errors.username}</p>}
         {mode === 'login' && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground/80 mt-1">
             Test users: <strong>admin</strong>, <strong>viewer</strong>, <strong>locked</strong>
           </p>
         )}
       </div>
 
       <div>
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="password" className="block text-sm font-medium text-foreground/80 mb-2">
           Password
         </label>
         <input
@@ -158,11 +158,11 @@ export function AuthForm({ mode }: AuthFormProps) {
           value={formData.password}
           onChange={handleChange}
           placeholder="••••••••"
-          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+          className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
         />
         {errors.password && <p className="text-sm text-red-600 mt-1">{errors.password}</p>}
         {mode === 'login' && (
-          <p className="text-xs text-gray-500 mt-1">
+          <p className="text-xs text-muted-foreground/80 mt-1">
             Password: <strong>admin123</strong> or <strong>viewer123</strong>
           </p>
         )}
@@ -170,7 +170,7 @@ export function AuthForm({ mode }: AuthFormProps) {
 
       {mode === 'register' && (
         <div>
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground/80 mb-2">
             Confirm Password
           </label>
           <input
@@ -180,7 +180,7 @@ export function AuthForm({ mode }: AuthFormProps) {
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="••••••••"
-            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+            className="w-full px-4 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
           />
           {errors.confirmPassword && <p className="text-sm text-red-600 mt-1">{errors.confirmPassword}</p>}
         </div>
@@ -189,14 +189,14 @@ export function AuthForm({ mode }: AuthFormProps) {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        className="w-full py-2 px-4 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
       >
         {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
         {mode === 'login' ? 'Sign In' : 'Create Account'}
       </button>
 
       {mode === 'login' && (
-        <p className="text-xs text-center text-gray-500 mt-2">
+        <p className="text-xs text-center text-muted-foreground/80 mt-2">
           🔒 <strong>admin</strong> / <strong>admin123</strong> |{' '}
           <strong>viewer</strong> / <strong>viewer123</strong>
         </p>

@@ -117,8 +117,8 @@ export default function ShopContent() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-          <p className="text-gray-600">Loading products...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading products...</p>
         </div>
       </div>
     )
@@ -132,7 +132,7 @@ export default function ShopContent() {
           <p className="text-red-600 text-lg mb-4">{error}</p>
           <button
             onClick={fetchProducts}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
             Try Again
           </button>
@@ -142,12 +142,12 @@ export default function ShopContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Shop</h1>
-          <p className="text-gray-600">Browse our collection of premium products</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Shop</h1>
+          <p className="text-muted-foreground">Browse our collection of premium products</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -156,7 +156,7 @@ export default function ShopContent() {
             <div className="space-y-6 sticky top-20">
     {/* Search */}
     <div>
-    <label htmlFor="search-input" className="block text-sm font-semibold text-gray-900 mb-3">
+    <label htmlFor="search-input" className="block text-sm font-semibold text-foreground mb-3">
         Search
     </label>
     <input
@@ -165,21 +165,21 @@ export default function ShopContent() {
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
         placeholder="Search products..."
-        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
     />
     </div>
 
     {/* Categories */}
     <div>
     <fieldset>
-        <legend className="block text-sm font-semibold text-gray-900 mb-3">Category</legend>
+        <legend className="block text-sm font-semibold text-foreground mb-3">Category</legend>
         <div className="space-y-2">
         <button
             onClick={() => setSelectedCategory('')}
             className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
             !selectedCategory
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-900'
+                ? 'bg-primary text-white'
+                : 'hover:bg-secondary text-foreground'
             }`}
         >
             All Products ({products.length})
@@ -190,8 +190,8 @@ export default function ShopContent() {
             onClick={() => setSelectedCategory(cat.id)}
             className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                 selectedCategory === cat.id
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-900'
+                ? 'bg-primary text-white'
+                : 'hover:bg-secondary text-foreground'
             }`}
             >
             <span className="flex items-center justify-between">
@@ -207,12 +207,12 @@ export default function ShopContent() {
     {/* Price */}
     <div>
     <fieldset>
-        <legend className="block text-sm font-semibold text-gray-900 mb-3">Price</legend>
+        <legend className="block text-sm font-semibold text-foreground mb-3">Price</legend>
         <div className="space-y-2">
         <button
             onClick={() => setSelectedPriceRange('')}
             className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-            !selectedPriceRange ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-900'
+            !selectedPriceRange ? 'bg-primary text-white' : 'hover:bg-secondary text-foreground'
             }`}
         >
             All Prices
@@ -223,8 +223,8 @@ export default function ShopContent() {
             onClick={() => setSelectedPriceRange(range.id)}
             className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                 selectedPriceRange === range.id
-                ? 'bg-blue-600 text-white'
-                : 'hover:bg-gray-100 text-gray-900'
+                ? 'bg-primary text-white'
+                : 'hover:bg-secondary text-foreground'
             }`}
             >
             {range.name}
@@ -236,7 +236,7 @@ export default function ShopContent() {
 
     {/* Sort */}
     <div>
-    <label htmlFor="sort-select" className="block text-sm font-semibold text-gray-900 mb-3">
+    <label htmlFor="sort-select" className="block text-sm font-semibold text-foreground mb-3">
         Sort By
     </label>
     <select
@@ -244,7 +244,7 @@ export default function ShopContent() {
         aria-label="Sort products by"
         value={sortBy}
         onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-card text-foreground focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
     >
         <option value="newest">Newest</option>
         <option value="price-low">Price: Low to High</option>
@@ -262,7 +262,7 @@ export default function ShopContent() {
                     setSelectedPriceRange('')
                     setSortBy('newest')
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-gray-900 hover:bg-gray-100 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-foreground hover:bg-secondary transition-colors"
                 >
                   <X className="h-4 w-4" />
                   Clear Filters
@@ -274,7 +274,7 @@ export default function ShopContent() {
           {/* Products */}
           <main className="md:col-span-3">
             <div className="mb-6 flex items-center justify-between">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Showing {filtered.length} of {products.length} products
               </p>
             </div>
@@ -287,14 +287,14 @@ export default function ShopContent() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-600 mb-4">No products found matching your filters</p>
+                <p className="text-muted-foreground mb-4">No products found matching your filters</p>
                 <button
                   onClick={() => {
                     setSearchQuery('')
                     setSelectedCategory('')
                     setSelectedPriceRange('')
                   }}
-                  className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                  className="text-primary hover:text-blue-800 font-semibold transition-colors"
                 >
                   Clear filters and try again
                 </button>

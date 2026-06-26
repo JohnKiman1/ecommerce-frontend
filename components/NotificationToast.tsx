@@ -30,7 +30,7 @@ export function NotificationToast() {
         return 'bg-yellow-50 text-yellow-900 border-yellow-200'
       case 'info':
       default:
-        return 'bg-blue-50 text-blue-900 border-blue-200'
+        return 'bg-primary/10 text-blue-900 border-blue-200'
     }
   }
 
@@ -44,7 +44,7 @@ export function NotificationToast() {
         return 'text-yellow-600'
       case 'info':
       default:
-        return 'text-blue-600'
+        return 'text-primary'
     }
   }
 
