@@ -294,12 +294,12 @@ export default function AdminOrders() {
                           </div>
                         )}
                         <Link
-                          href={`/orders/${order.id}`}
-                          className="p-1.5 rounded hover:bg-gray-100 transition-colors"
-                          title="View Order"
-                          aria-label={`View order #${order.id}`}
+                        href={`/orders/${order.id}`}
+                        className="p-1.5 rounded hover:bg-gray-100 transition-colors"
+                        title="View Order"
+                        aria-label={`View order #${order.id}`}
                         >
-                          <Eye className="h-4 w-4 text-blue-600" />
+                        <Eye className="h-4 w-4 text-blue-600" />
                         </Link>
                       </div>
                     </td>
