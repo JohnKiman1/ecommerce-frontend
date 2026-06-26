@@ -279,42 +279,81 @@ app.delete('/api/products/:id', async (req, res) => {
   }
 });
 
-// GET product reviews
+// ============================================
+// REVIEW ENDPOINTS (UPDATED)
+// ============================================
+
+// GET reviews for a product
 app.get('/api/products/:id/reviews', async (req, res) => {
   try {
+    const productId = req.params.id;
+    
+    console.log(`📝 Fetching reviews for product ${productId}`);
+    
     const { data, error } = await supabase
       .from('reviews')
       .select(`
         *,
-        users:user_id (username)
+        users:user_id (username, name)
       `)
-      .eq('product_id', req.params.id)
+      .eq('product_id', productId)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
+    
+    console.log(`✅ Found ${data ? data.length : 0} reviews`);
     res.json(data || []);
   } catch (error) {
+    console.error('❌ Reviews error:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-// POST product review
+// POST a review - with duplicate check
 app.post('/api/products/:id/reviews', async (req, res) => {
   try {
-    const { user_id, rating, comment } = req.body;
     const productId = req.params.id;
+    const { user_id, rating, comment } = req.body;
+    
+    console.log(`📝 Creating review for product ${productId} by user ${user_id}`);
     
     if (!user_id || !rating) {
       return res.status(400).json({ error: 'User ID and rating are required' });
     }
     
+    // Check if user already reviewed this product
+    const { data: existing, error: checkError } = await supabase
+      .from('reviews')
+      .select('id')
+      .eq('product_id', productId)
+      .eq('user_id', user_id)
+      .maybeSingle();
+    
+    if (existing) {
+      console.log('❌ User already reviewed this product');
+      return res.status(409).json({ 
+        error: 'You have already reviewed this product',
+        existingReview: existing
+      });
+    }
+    
+    // Insert review
     const { data, error } = await supabase
       .from('reviews')
-      .insert([{ product_id: productId, user_id, rating, comment }])
-      .select();
+      .insert([{ 
+        product_id: productId, 
+        user_id, 
+        rating, 
+        comment: comment || '' 
+      }])
+      .select(`
+        *,
+        users:user_id (username, name)
+      `);
     
     if (error) throw error;
     
+    // Update product rating
     const { data: reviews } = await supabase
       .from('reviews')
       .select('rating')
@@ -331,8 +370,58 @@ app.post('/api/products/:id/reviews', async (req, res) => {
         .eq('id', productId);
     }
     
+    console.log('✅ Review created');
     res.status(201).json(data[0]);
   } catch (error) {
+    console.error('❌ Review error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// DELETE a review (admin only)
+app.delete('/api/reviews/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    console.log(`🗑️ Deleting review ${id}`);
+    
+    const { data, error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', id)
+      .select();
+    
+    if (error) throw error;
+    
+    // Update product rating
+    if (data && data.length > 0) {
+      const productId = data[0].product_id;
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('rating')
+        .eq('product_id', productId);
+      
+      if (reviews && reviews.length > 0) {
+        const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+        await supabase
+          .from('products')
+          .update({ 
+            rating: Math.round(avgRating * 10) / 10,
+            reviews: reviews.length 
+          })
+          .eq('id', productId);
+      } else {
+        await supabase
+          .from('products')
+          .update({ rating: 0, reviews: 0 })
+          .eq('id', productId);
+      }
+    }
+    
+    console.log('✅ Review deleted');
+    res.json({ message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('❌ Delete review error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -562,6 +651,52 @@ app.get('/api/orders/:userId/:orderId', async (req, res) => {
   }
 });
 
+// UPDATE order status
+app.put('/api/orders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    console.log('📝 Updating order status:', id, '→', status);
+    
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    
+    const { data: existing, error: checkError } = await supabase
+      .from('orders')
+      .select('id, status')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      console.log('❌ Order not found:', id);
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ 
+        status: status,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      console.error('❌ Update error:', error);
+      throw error;
+    }
+    
+    console.log('✅ Order status updated:', id, 'from', existing.status, 'to', status);
+    res.json(data[0]);
+  } catch (error) {
+    console.error('❌ Update order status error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // ============================================
 // USER PROFILE ENDPOINTS
 // ============================================
@@ -726,59 +861,6 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // ============================================
-// ORDER STATUS UPDATE ENDPOINT
-// ============================================
-
-// UPDATE order status
-app.put('/api/orders/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    
-    console.log('📝 Updating order status:', id, '→', status);
-    
-    // Validate status
-    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status' });
-    }
-    
-    // Check if order exists
-    const { data: existing, error: checkError } = await supabase
-      .from('orders')
-      .select('id, status')
-      .eq('id', id)
-      .single();
-    
-    if (checkError || !existing) {
-      console.log('❌ Order not found:', id);
-      return res.status(404).json({ error: 'Order not found' });
-    }
-    
-    // Update the status
-    const { data, error } = await supabase
-      .from('orders')
-      .update({ 
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select();
-    
-    if (error) {
-      console.error('❌ Update error:', error);
-      throw error;
-    }
-    
-    console.log('✅ Order status updated:', id, 'from', existing.status, 'to', status);
-    res.json(data[0]);
-  } catch (error) {
-    console.error('❌ Update order status error:', error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-// ============================================
 // RESET DATABASE (for testing)
 // ============================================
 app.post('/api/reset', async (req, res) => {
@@ -843,6 +925,7 @@ app.listen(PORT, () => {
   console.log('📚 /api/products - Product CRUD (GET, POST, PUT, DELETE)');
   console.log('🛒 /api/cart - Cart operations');
   console.log('📦 /api/orders - Order operations (POST, GET all, GET single)');
+  console.log('⭐ /api/products/:id/reviews - Product reviews');
   console.log('👤 /api/profile - User profile');
   console.log('👥 /api/users - User management');
   console.log('🔐 /api/login - Login');

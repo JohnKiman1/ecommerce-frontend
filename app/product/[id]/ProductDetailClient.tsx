@@ -300,4 +300,4 @@ export default function ProductDetailClient({ productId }: { productId: string }
       )}
     </div>
   )
-}
+} 
