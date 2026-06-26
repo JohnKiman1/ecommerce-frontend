@@ -726,6 +726,59 @@ app.delete('/api/users/:id', async (req, res) => {
 });
 
 // ============================================
+// ORDER STATUS UPDATE ENDPOINT
+// ============================================
+
+// UPDATE order status
+app.put('/api/orders/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    console.log('📝 Updating order status:', id, '→', status);
+    
+    // Validate status
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+    
+    // Check if order exists
+    const { data: existing, error: checkError } = await supabase
+      .from('orders')
+      .select('id, status')
+      .eq('id', id)
+      .single();
+    
+    if (checkError || !existing) {
+      console.log('❌ Order not found:', id);
+      return res.status(404).json({ error: 'Order not found' });
+    }
+    
+    // Update the status
+    const { data, error } = await supabase
+      .from('orders')
+      .update({ 
+        status: status,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', id)
+      .select();
+    
+    if (error) {
+      console.error('❌ Update error:', error);
+      throw error;
+    }
+    
+    console.log('✅ Order status updated:', id, 'from', existing.status, 'to', status);
+    res.json(data[0]);
+  } catch (error) {
+    console.error('❌ Update order status error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
 // RESET DATABASE (for testing)
 // ============================================
 app.post('/api/reset', async (req, res) => {

@@ -40,6 +40,7 @@ export default function AdminLayout({
     { href: '/admin/products', label: 'Products', icon: Package },
     { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+    
   ]
 
   return (

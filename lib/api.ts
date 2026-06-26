@@ -38,7 +38,7 @@ export interface CartItem {
 export interface Order {
   id: number;
   user_id: number;
-  status: 'pending' | 'confirmed' | 'shipped' | 'delivered' | 'cancelled';
+  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   subtotal: number;
   shipping: number;
   tax: number;
@@ -223,10 +223,10 @@ export const api = {
     if (!response.ok) {
       throw new Error('Failed to fetch orders');
     }
-    return response.json();
+    const data = await response.json();
+    return Array.isArray(data) ? data : [];
   },
 
-  // ✅ NEW: Get single order
   getOrder: async (userId: number, orderId: number): Promise<Order> => {
     const response = await fetch(`${API_BASE}/orders/${userId}/${orderId}`);
     if (!response.ok) {
@@ -235,7 +235,24 @@ export const api = {
     return response.json();
   },
 
-  // ✅ NEW: Create a review
+  // ✅ ADD THIS: Update order status
+  updateOrderStatus: async (orderId: number, status: string): Promise<Order> => {
+    const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update order status');
+    }
+    return response.json();
+  },
+
+  // ============================================
+  // REVIEW ENDPOINTS
+  // ============================================
+
   createReview: async (productId: number, data: { rating: number; comment: string }) => {
     const response = await fetch(`${API_BASE}/products/${productId}/reviews`, {
       method: 'POST',
@@ -249,6 +266,14 @@ export const api = {
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to submit review');
+    }
+    return response.json();
+  },
+
+  getReviews: async (productId: number) => {
+    const response = await fetch(`${API_BASE}/products/${productId}/reviews`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch reviews');
     }
     return response.json();
   },
@@ -319,18 +344,6 @@ export const api = {
       const error = await response.json();
       throw new Error(error.error || 'Failed to delete user');
     }
-  },
-
-  // ============================================
-  // REVIEW ENDPOINTS
-  // ============================================
-
-  getReviews: async (productId: number) => {
-    const response = await fetch(`${API_BASE}/products/${productId}/reviews`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch reviews');
-    }
-    return response.json();
   },
 
   // ============================================

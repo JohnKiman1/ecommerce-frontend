@@ -8,9 +8,50 @@ import { useToast } from '@/contexts/ToastContext'
 import { api } from '@/lib/api'
 import { 
   ArrowLeft, Package, Truck, CheckCircle, XCircle, Clock, 
-  Star, CreditCard, MapPin
+  Star, CreditCard, MapPin, RefreshCw, PackageCheck
 } from 'lucide-react'
 import Link from 'next/link'
+
+type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+
+const STATUS_CONFIG: Record<OrderStatus, { label: string; color: string; icon: any; nextStatus: OrderStatus[] }> = {
+  pending: {
+    label: 'Pending',
+    color: 'text-yellow-600 bg-yellow-50',
+    icon: Clock,
+    nextStatus: ['confirmed', 'cancelled']
+  },
+  confirmed: {
+    label: 'Confirmed',
+    color: 'text-blue-600 bg-blue-50',
+    icon: CheckCircle,
+    nextStatus: ['processing', 'cancelled']
+  },
+  processing: {
+    label: 'Processing',
+    color: 'text-purple-600 bg-purple-50',
+    icon: Package,
+    nextStatus: ['shipped', 'cancelled']
+  },
+  shipped: {
+    label: 'Shipped',
+    color: 'text-indigo-600 bg-indigo-50',
+    icon: Truck,
+    nextStatus: ['delivered']
+  },
+  delivered: {
+    label: 'Delivered',
+    color: 'text-green-600 bg-green-50',
+    icon: PackageCheck,
+    nextStatus: []
+  },
+  cancelled: {
+    label: 'Cancelled',
+    color: 'text-red-600 bg-red-50',
+    icon: XCircle,
+    nextStatus: []
+  }
+}
 
 export default function OrderDetailPage() {
   const router = useRouter()
@@ -21,6 +62,7 @@ export default function OrderDetailPage() {
 
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [updating, setUpdating] = useState(false)
   const [rating, setRating] = useState(0)
   const [review, setReview] = useState('')
   const [showReviewForm, setShowReviewForm] = useState(false)
@@ -39,7 +81,6 @@ export default function OrderDetailPage() {
     if (!user) return
     try {
       setLoading(true)
-      // ✅ Fetch the actual order from the API
       const data = await api.getOrder(user.id, parseInt(orderId))
       setOrder(data)
     } catch (error) {
@@ -50,30 +91,30 @@ export default function OrderDetailPage() {
     }
   }
 
-  const getStatusIcon = (status: string) => {
-    const icons: Record<string, any> = {
-      pending: Clock,
-      confirmed: Package,
-      shipped: Truck,
-      delivered: CheckCircle,
-      cancelled: XCircle
+  const handleStatusUpdate = async (newStatus: OrderStatus) => {
+    if (!order) return
+    setUpdating(true)
+    try {
+      await api.updateOrderStatus(order.id, newStatus)
+      setOrder({ ...order, status: newStatus })
+      showToast(`Order status updated to ${STATUS_CONFIG[newStatus].label}`, 'success')
+    } catch (error) {
+      showToast('Failed to update order status', 'error')
+    } finally {
+      setUpdating(false)
     }
-    return icons[status] || Clock
+  }
+
+  const getStatusIcon = (status: string) => {
+    return STATUS_CONFIG[status as OrderStatus]?.icon || Clock
   }
 
   const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      pending: 'text-yellow-600 bg-yellow-50',
-      confirmed: 'text-blue-600 bg-blue-50',
-      shipped: 'text-purple-600 bg-purple-50',
-      delivered: 'text-green-600 bg-green-50',
-      cancelled: 'text-red-600 bg-red-50'
-    }
-    return colors[status] || 'text-gray-600 bg-gray-50'
+    return STATUS_CONFIG[status as OrderStatus]?.color || 'text-gray-600 bg-gray-50'
   }
 
   const getStatusLabel = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1)
+    return STATUS_CONFIG[status as OrderStatus]?.label || status.charAt(0).toUpperCase() + status.slice(1)
   }
 
   const handleRating = (productId: number) => {
@@ -132,6 +173,7 @@ export default function OrderDetailPage() {
   }
 
   const StatusIcon = getStatusIcon(order.status)
+  const statusConfig = STATUS_CONFIG[order.status as OrderStatus]
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -168,6 +210,53 @@ export default function OrderDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* ✅ Order Status Management (Admin Only) */}
+        {user?.role === 'admin' && statusConfig.nextStatus && statusConfig.nextStatus.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <h3 className="font-semibold text-gray-900">Order Status Management</h3>
+                <p className="text-sm text-gray-500 mt-1">Update the status of this order</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                {statusConfig.nextStatus.map((nextStatus) => {
+                  const nextConfig = STATUS_CONFIG[nextStatus]
+                  const NextIcon = nextConfig.icon
+                  return (
+                    <button
+                      key={nextStatus}
+                      onClick={() => handleStatusUpdate(nextStatus)}
+                      disabled={updating}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                        nextStatus === 'cancelled'
+                          ? 'bg-red-600 text-white hover:bg-red-700'
+                          : 'bg-blue-600 text-white hover:bg-blue-700'
+                      } disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {updating ? (
+                        <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <NextIcon className="h-3.5 w-3.5" />
+                      )}
+                      {nextConfig.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+            {/* Status Timeline */}
+            <div className="mt-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-3 text-sm text-gray-500">
+                <span>Current Status:</span>
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>
+                  <StatusIcon className="h-3 w-3" />
+                  {getStatusLabel(order.status)}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Order Items */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
