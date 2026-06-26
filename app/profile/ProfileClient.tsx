@@ -90,7 +90,7 @@ export default function ProfileClient() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-gray-600">Loading profile...</p>
+          <p className="text-muted-foreground">Loading profile...</p>
         </div>
       </div>
     )
@@ -100,10 +100,10 @@ export default function ProfileClient() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900">Profile not found</h1>
+          <h1 className="text-2xl font-bold text-foreground">Profile not found</h1>
           <button
             onClick={() => router.push('/')}
-            className="mt-4 text-blue-600 hover:text-blue-800"
+            className="mt-4 text-primary hover:text-blue-800"
           >
             Go home
           </button>
@@ -113,12 +113,12 @@ export default function ProfileClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">My Account</h1>
-          <p className="text-gray-600 mt-1">Manage your profile information</p>
+          <h1 className="text-3xl font-bold text-foreground">My Account</h1>
+          <p className="text-muted-foreground mt-1">Manage your profile information</p>
         </div>
 
         {error && (
@@ -130,29 +130,29 @@ export default function ProfileClient() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Profile Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div className="bg-card rounded-lg shadow-sm p-6 border border-gray-100">
               <div className="text-center">
-                <div className="h-24 w-24 rounded-full bg-blue-100 flex items-center justify-center mx-auto">
-                  <span className="text-3xl font-bold text-blue-600">
+                <div className="h-24 w-24 rounded-full bg-primary/20 flex items-center justify-center mx-auto">
+                  <span className="text-3xl font-bold text-primary">
                     {profile.username.charAt(0).toUpperCase()}
                   </span>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900 mt-4">
+                <h2 className="text-xl font-semibold text-foreground mt-4">
                   {profile.name || profile.username}
                 </h2>
-                <p className="text-sm text-gray-500">@{profile.username}</p>
+                <p className="text-sm text-muted-foreground/80">@{profile.username}</p>
                 <div className="mt-4">
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                     profile.role === 'admin' 
                       ? 'bg-purple-100 text-purple-800' 
                       : profile.role === 'locked'
                       ? 'bg-red-100 text-red-800'
-                      : 'bg-blue-100 text-blue-800'
+                      : 'bg-primary/20 text-blue-800'
                   }`}>
                     {profile.role}
                   </span>
                 </div>
-                <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="mt-6 pt-6 border-t border-border">
                   <button
                     onClick={handleLogout}
                     className="flex items-center justify-center gap-2 w-full px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
@@ -167,11 +167,11 @@ export default function ProfileClient() {
 
           {/* Profile Form */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+            <div className="bg-card rounded-lg shadow-sm p-6 border border-gray-100">
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Full Name */}
                 <div>
-                  <label htmlFor="profile-name" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="profile-name" className="block text-sm font-medium text-foreground/80 mb-1">
                     Full Name
                   </label>
                   <div className="relative">
@@ -190,7 +190,7 @@ export default function ProfileClient() {
 
                 {/* Email */}
                 <div>
-                  <label htmlFor="profile-email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="profile-email" className="block text-sm font-medium text-foreground/80 mb-1">
                     Email Address
                   </label>
                   <div className="relative">
@@ -209,7 +209,7 @@ export default function ProfileClient() {
 
                 {/* Phone */}
                 <div>
-                  <label htmlFor="profile-phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="profile-phone" className="block text-sm font-medium text-foreground/80 mb-1">
                     Phone Number
                   </label>
                   <div className="relative">
@@ -228,7 +228,7 @@ export default function ProfileClient() {
 
                 {/* Username (Read-only) */}
                 <div>
-                  <label htmlFor="profile-username" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="profile-username" className="block text-sm font-medium text-foreground/80 mb-1">
                     Username
                   </label>
                   <div className="relative">
@@ -238,7 +238,7 @@ export default function ProfileClient() {
                       type="text"
                       value={profile.username}
                       disabled
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed"
+                      className="w-full pl-10 pr-4 py-2 border border-border bg-muted text-muted-foreground/80 rounded-lg cursor-not-allowed"
                     />
                   </div>
                   <p className="text-xs text-gray-400 mt-1">Username cannot be changed</p>
@@ -246,7 +246,7 @@ export default function ProfileClient() {
 
                 {/* Role (Read-only) */}
                 <div>
-                  <label htmlFor="profile-role" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="profile-role" className="block text-sm font-medium text-foreground/80 mb-1">
                     Role
                   </label>
                   <div className="relative">
@@ -256,14 +256,14 @@ export default function ProfileClient() {
                       type="text"
                       value={profile.role}
                       disabled
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed capitalize"
+                      className="w-full pl-10 pr-4 py-2 border border-border bg-muted text-muted-foreground/80 rounded-lg cursor-not-allowed capitalize"
                     />
                   </div>
                 </div>
 
                 {/* Member Since (Read-only) - ✅ Fixed typo */}
                 <div>
-                  <label htmlFor="profile-created" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="profile-created" className="block text-sm font-medium text-foreground/80 mb-1">
                     Member Since
                   </label>
                   <div className="relative">
@@ -277,17 +277,17 @@ export default function ProfileClient() {
                         day: 'numeric',
                       })}
                       disabled
-                      className="w-full pl-10 pr-4 py-2 border border-gray-200 bg-gray-50 text-gray-500 rounded-lg cursor-not-allowed"
+                      className="w-full pl-10 pr-4 py-2 border border-border bg-muted text-muted-foreground/80 rounded-lg cursor-not-allowed"
                     />
                   </div>
                 </div>
 
                 {/* Actions */}
-                <div className="flex gap-4 pt-4 border-t border-gray-200">
+                <div className="flex gap-4 pt-4 border-t border-border">
                   <button
                     type="submit"
                     disabled={saving}
-                    className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                    className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                   >
                     {saving ? (
                       <>

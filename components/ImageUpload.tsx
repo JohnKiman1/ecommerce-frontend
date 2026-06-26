@@ -92,14 +92,14 @@ export default function ImageUpload({
 
   return (
     <div>
-      <label htmlFor="image-upload-input" className="block text-sm font-medium text-gray-700 mb-1">
+      <label htmlFor="image-upload-input" className="block text-sm font-medium text-foreground/80 mb-1">
         {label} {required && <span className="text-red-500">*</span>}
       </label>
       
       <div
         className={`relative border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
           dragActive 
-            ? 'border-blue-500 bg-blue-50' 
+            ? 'border-blue-500 bg-primary/10' 
             : 'border-gray-300 hover:border-gray-400'
         }`}
         onDragEnter={handleDrag}
@@ -142,10 +142,10 @@ export default function ImageUpload({
             <div className="flex justify-center" aria-hidden="true">
               <Upload className="h-12 w-12 text-gray-400" />
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Drag and drop an image here, or click to select
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-muted-foreground/80">
               Supports JPG, PNG, GIF up to 5MB
             </p>
           </div>

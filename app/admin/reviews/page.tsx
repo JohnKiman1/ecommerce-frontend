@@ -112,12 +112,12 @@ export default function AdminReviews() {
     <div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Reviews</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage customer reviews</p>
+          <h1 className="text-3xl font-bold text-foreground">Reviews</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">Manage customer reviews</p>
         </div>
         <button
           onClick={fetchReviews}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
         >
           Refresh
         </button>
@@ -125,16 +125,16 @@ export default function AdminReviews() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Total Reviews</p>
-          <p className="text-xl font-bold text-gray-900">{reviews.length}</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
+          <p className="text-sm text-muted-foreground/80">Total Reviews</p>
+          <p className="text-xl font-bold text-foreground">{reviews.length}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Pending</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
+          <p className="text-sm text-muted-foreground/80">Pending</p>
           <p className="text-xl font-bold text-yellow-600">{statusCounts.pending || 0}</p>
         </div>
-        <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Approved</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
+          <p className="text-sm text-muted-foreground/80">Approved</p>
           <p className="text-xl font-bold text-green-600">{statusCounts.approved || 0}</p>
         </div>
       </div>
@@ -164,26 +164,26 @@ export default function AdminReviews() {
       )}
 
       {/* Reviews Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50">
+            <thead className="bg-muted">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Product</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">User</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Rating</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Comment</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Status</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-600">Actions</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Product</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">User</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Rating</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Comment</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredReviews.map((review) => (
-                <tr key={review.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                <tr key={review.id} className="hover:bg-muted transition-colors">
+                  <td className="px-6 py-4 text-sm text-foreground">
                     {review.product_name || review.products?.name || `Product #${review.product_id}`}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
+                  <td className="px-6 py-4 text-sm text-muted-foreground">
                     {review.users?.name || review.users?.username || `User #${review.user_id}`}
                   </td>
                   <td className="px-6 py-4">
@@ -200,7 +200,7 @@ export default function AdminReviews() {
                       ))}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
+                  <td className="px-6 py-4 text-sm text-muted-foreground max-w-xs truncate">
                     {review.comment}
                   </td>
                   <td className="px-6 py-4">
@@ -239,7 +239,7 @@ export default function AdminReviews() {
         </div>
         {filteredReviews.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No reviews found</p>
+            <p className="text-muted-foreground/80">No reviews found</p>
           </div>
         )}
       </div>

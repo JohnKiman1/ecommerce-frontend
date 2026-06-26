@@ -53,11 +53,11 @@ function CheckoutContent() {
     return (
       <div className="min-h-screen flex items-center justify-center py-12 px-4">
         <div className="text-center space-y-6 max-w-md">
-          <h1 className="text-3xl font-bold text-gray-900">Sign in required</h1>
-          <p className="text-gray-600">Please sign in to complete your purchase</p>
+          <h1 className="text-3xl font-bold text-foreground">Sign in required</h1>
+          <p className="text-muted-foreground">Please sign in to complete your purchase</p>
           <Link
             href="/login"
-            className="inline-block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="inline-block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
           >
             Sign In
           </Link>
@@ -71,11 +71,11 @@ function CheckoutContent() {
     return (
       <div className="min-h-screen flex items-center justify-center py-12 px-4">
         <div className="text-center space-y-6 max-w-md">
-          <h1 className="text-3xl font-bold text-gray-900">Your cart is empty</h1>
-          <p className="text-gray-600">Add some items to your cart before checking out.</p>
+          <h1 className="text-3xl font-bold text-foreground">Your cart is empty</h1>
+          <p className="text-muted-foreground">Add some items to your cart before checking out.</p>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+            className="inline-flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
           >
             Continue Shopping
             <ArrowLeft className="h-4 w-4" />
@@ -187,19 +187,19 @@ function CheckoutContent() {
       <div className="min-h-screen flex items-center justify-center py-12 px-4">
         <div className="text-center space-y-6 max-w-md">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto" />
-          <h1 className="text-3xl font-bold text-gray-900">Order Confirmed! 🎉</h1>
-          <p className="text-gray-600">Your order has been placed successfully. You will receive a confirmation email shortly.</p>
+          <h1 className="text-3xl font-bold text-foreground">Order Confirmed! 🎉</h1>
+          <p className="text-muted-foreground">Your order has been placed successfully. You will receive a confirmation email shortly.</p>
           <div className="space-y-3">
             <Link
               href="/"
-              className="block px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+              className="block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
             >
               Back to Home
             </Link>
             {/* ✅ View Orders button redirects to profile with orders tab */}
             <Link
               href="/profile?tab=orders"
-              className="block px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-semibold"
+              className="block px-6 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors font-semibold"
             >
               View Orders
             </Link>
@@ -210,9 +210,9 @@ function CheckoutContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <div className="min-h-screen bg-muted py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">Checkout</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Steps */}
@@ -223,12 +223,12 @@ function CheckoutContent() {
                   <div
                     className={`p-3 rounded-lg text-center font-semibold text-sm transition-colors ${
                       step === s
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-primary text-white'
                         : ['shipping', 'billing', 'payment'].includes(s) && 
                           ['shipping', 'billing', 'payment', 'confirm'].indexOf(s) <
                           ['shipping', 'billing', 'payment', 'confirm'].indexOf(step)
                         ? 'bg-green-100 text-green-800'
-                        : 'bg-gray-100 text-gray-500'
+                        : 'bg-secondary text-muted-foreground/80'
                     }`}
                   >
                     {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -239,11 +239,11 @@ function CheckoutContent() {
 
             {/* Shipping */}
             {step === 'shipping' && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                <h2 className="text-xl font-bold text-gray-900">Shipping Address</h2>
+              <div className="bg-card rounded-lg border border-border p-6 space-y-4">
+                <h2 className="text-xl font-bold text-foreground">Shipping Address</h2>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="firstName" className="block text-sm font-medium text-foreground/80 mb-1">
                       First Name *
                     </label>
                     <input
@@ -258,7 +258,7 @@ function CheckoutContent() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="lastName" className="block text-sm font-medium text-foreground/80 mb-1">
                       Last Name *
                     </label>
                     <input
@@ -274,7 +274,7 @@ function CheckoutContent() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="email" className="block text-sm font-medium text-foreground/80 mb-1">
                     Email *
                   </label>
                   <input
@@ -289,7 +289,7 @@ function CheckoutContent() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="phone" className="block text-sm font-medium text-foreground/80 mb-1">
                     Phone
                   </label>
                   <input
@@ -304,7 +304,7 @@ function CheckoutContent() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="address" className="block text-sm font-medium text-foreground/80 mb-1">
                     Street Address *
                   </label>
                   <input
@@ -320,7 +320,7 @@ function CheckoutContent() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="city" className="block text-sm font-medium text-foreground/80 mb-1">
                       City *
                     </label>
                     <input
@@ -335,7 +335,7 @@ function CheckoutContent() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="state" className="block text-sm font-medium text-foreground/80 mb-1">
                       State *
                     </label>
                     <input
@@ -351,7 +351,7 @@ function CheckoutContent() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="zipCode" className="block text-sm font-medium text-foreground/80 mb-1">
                     ZIP Code *
                   </label>
                   <input
@@ -366,7 +366,7 @@ function CheckoutContent() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="country" className="block text-sm font-medium text-foreground/80 mb-1">
                     Country
                   </label>
                   <select
@@ -392,7 +392,7 @@ function CheckoutContent() {
                 ))}
                 <button
                   onClick={handleNext}
-                  className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
                 >
                   Continue to Billing
                 </button>
@@ -401,12 +401,12 @@ function CheckoutContent() {
 
             {/* Billing */}
             {step === 'billing' && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                <h2 className="text-xl font-bold text-gray-900">Billing Address</h2>
-                <p className="text-gray-600">Same as shipping address</p>
+              <div className="bg-card rounded-lg border border-border p-6 space-y-4">
+                <h2 className="text-xl font-bold text-foreground">Billing Address</h2>
+                <p className="text-muted-foreground">Same as shipping address</p>
                 <button
                   onClick={handleNext}
-                  className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
                 >
                   Continue to Payment
                 </button>
@@ -415,10 +415,10 @@ function CheckoutContent() {
 
             {/* Payment */}
             {step === 'payment' && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                <h2 className="text-xl font-bold text-gray-900">Payment Method</h2>
+              <div className="bg-card rounded-lg border border-border p-6 space-y-4">
+                <h2 className="text-xl font-bold text-foreground">Payment Method</h2>
                 <div>
-                  <label htmlFor="cardName" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="cardName" className="block text-sm font-medium text-foreground/80 mb-1">
                     Cardholder Name *
                   </label>
                   <input
@@ -433,7 +433,7 @@ function CheckoutContent() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="cardNumber" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="cardNumber" className="block text-sm font-medium text-foreground/80 mb-1">
                     Card Number *
                   </label>
                   <input
@@ -449,7 +449,7 @@ function CheckoutContent() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="cardExpiry" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="cardExpiry" className="block text-sm font-medium text-foreground/80 mb-1">
                       Expiry Date *
                     </label>
                     <input
@@ -464,7 +464,7 @@ function CheckoutContent() {
                     />
                   </div>
                   <div>
-                    <label htmlFor="cardCVC" className="block text-sm font-medium text-gray-700 mb-1">
+                    <label htmlFor="cardCVC" className="block text-sm font-medium text-foreground/80 mb-1">
                       CVC *
                     </label>
                     <input
@@ -486,7 +486,7 @@ function CheckoutContent() {
                 ))}
                 <button
                   onClick={handleNext}
-                  className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
                 >
                   Review Order
                 </button>
@@ -495,12 +495,12 @@ function CheckoutContent() {
 
             {/* Confirm */}
             {step === 'confirm' && (
-              <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
-                <h2 className="text-xl font-bold text-gray-900">Confirm Order</h2>
-                <p className="text-gray-600">Please review your order details before completing the purchase.</p>
-                <div className="border-t border-gray-200 pt-4">
-                  <h3 className="font-semibold text-gray-900 mb-3">Shipping To:</h3>
-                  <p className="text-sm text-gray-600">
+              <div className="bg-card rounded-lg border border-border p-6 space-y-4">
+                <h2 className="text-xl font-bold text-foreground">Confirm Order</h2>
+                <p className="text-muted-foreground">Please review your order details before completing the purchase.</p>
+                <div className="border-t border-border pt-4">
+                  <h3 className="font-semibold text-foreground mb-3">Shipping To:</h3>
+                  <p className="text-sm text-muted-foreground">
                     {formData.firstName} {formData.lastName}
                     <br />
                     {formData.address}
@@ -511,7 +511,7 @@ function CheckoutContent() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isProcessing}
-                  className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-semibold flex items-center justify-center gap-2"
+                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors font-semibold flex items-center justify-center gap-2"
                   title="Place your order"
                 >
                   {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -523,38 +523,38 @@ function CheckoutContent() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4 sticky top-20">
-              <h2 className="text-lg font-bold text-gray-900">Order Summary</h2>
+            <div className="bg-card rounded-lg border border-border p-6 space-y-4 sticky top-20">
+              <h2 className="text-lg font-bold text-foreground">Order Summary</h2>
 
               <div className="space-y-3 max-h-48 overflow-y-auto">
                 {cartItems.map((item) => (
-                  <div key={item.id} className="text-sm text-gray-600">
+                  <div key={item.id} className="text-sm text-muted-foreground">
                     {item.quantity}x {item.products?.name || 'Product'}
-                    <div className="text-gray-900 font-semibold">${((item.products?.price || 0) * item.quantity).toFixed(2)}</div>
+                    <div className="text-foreground font-semibold">${((item.products?.price || 0) * item.quantity).toFixed(2)}</div>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-gray-200 pt-4 space-y-2">
+              <div className="border-t border-border pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Subtotal</span>
-                  <span className="text-gray-900">${subtotal.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-foreground">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Shipping</span>
-                  <span className="text-gray-900">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="text-foreground">{shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Tax</span>
-                  <span className="text-gray-900">${tax.toFixed(2)}</span>
+                  <span className="text-muted-foreground">Tax</span>
+                  <span className="text-foreground">${tax.toFixed(2)}</span>
                 </div>
                 {subtotal > 100 && <p className="text-sm text-green-600 font-semibold">✓ Free shipping applied!</p>}
               </div>
 
-              <div className="border-t border-gray-200 pt-4">
+              <div className="border-t border-border pt-4">
                 <div className="flex justify-between items-center">
-                  <span className="font-bold text-gray-900">Total</span>
-                  <span className="text-2xl font-bold text-blue-600">${total.toFixed(2)}</span>
+                  <span className="font-bold text-foreground">Total</span>
+                  <span className="text-2xl font-bold text-primary">${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -572,7 +572,7 @@ export default function CheckoutPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-gray-600">Loading checkout...</p>
+          <p className="text-muted-foreground">Loading checkout...</p>
         </div>
       </div>
     }>

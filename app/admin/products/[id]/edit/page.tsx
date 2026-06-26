@@ -101,14 +101,14 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       <div className="flex items-center gap-4 mb-8">
         <button
           onClick={() => router.back()}
-          className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-secondary rounded-lg transition-colors"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-5 w-5 text-gray-600" />
+          <ArrowLeft className="h-5 w-5 text-muted-foreground" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Product</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Edit Product</h1>
+          <p className="text-sm text-muted-foreground/80 mt-1">
             Update product information
           </p>
         </div>
@@ -120,10 +120,10 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6 bg-white rounded-lg shadow-sm p-6 border border-gray-100">
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6 bg-card rounded-lg shadow-sm p-6 border border-gray-100">
         {/* Product Name */}
         <div>
-          <label htmlFor="edit-name" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="edit-name" className="block text-sm font-medium text-foreground/80 mb-1">
             Product Name *
           </label>
           <input
@@ -140,7 +140,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
 
         {/* Description */}
         <div>
-          <label htmlFor="edit-description" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="edit-description" className="block text-sm font-medium text-foreground/80 mb-1">
             Description
           </label>
           <textarea
@@ -157,7 +157,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Price & Category */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="edit-price" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="edit-price" className="block text-sm font-medium text-foreground/80 mb-1">
               Price *
             </label>
             <input
@@ -175,7 +175,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           </div>
 
           <div>
-            <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="edit-category" className="block text-sm font-medium text-foreground/80 mb-1">
               Category
             </label>
             <select
@@ -204,7 +204,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
 
         {/* Sizes */}
         <div>
-          <label htmlFor="edit-sizes" className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="edit-sizes" className="block text-sm font-medium text-foreground/80 mb-1">
             Sizes (comma separated)
           </label>
           <input
@@ -225,11 +225,11 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
               type="checkbox"
               checked={formData.in_stock}
               onChange={(e) => setFormData({ ...formData, in_stock: e.target.checked })}
-              className="h-4 w-4 text-blue-600 rounded focus:ring-blue-500"
+              className="h-4 w-4 text-primary rounded focus:ring-blue-500"
               aria-label="Product in stock"
               title="Toggle stock status"
             />
-            <span className="text-sm text-gray-700">In Stock</span>
+            <span className="text-sm text-foreground/80">In Stock</span>
           </label>
           <span className={`text-xs px-2 py-1 rounded-full ${
             formData.in_stock 
@@ -241,11 +241,11 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4 pt-4 border-t border-gray-200">
+        <div className="flex gap-4 pt-4 border-t border-border">
           <button
             type="submit"
             disabled={saving}
-            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {saving ? (
               <span className="flex items-center gap-2">
@@ -258,7 +258,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
           </button>
           <a
             href="/admin/products"
-            className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            className="px-6 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors"
           >
             Cancel
           </a>

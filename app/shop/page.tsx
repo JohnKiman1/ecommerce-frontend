@@ -134,8 +134,8 @@ function ShopContent() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
-          <p className="text-gray-600">Loading products...</p>
+          <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading products...</p>
         </div>
       </div>
     )
@@ -149,7 +149,7 @@ function ShopContent() {
           <p className="text-red-600 text-lg mb-4">{error}</p>
           <button
             onClick={fetchProducts}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90"
           >
             Try Again
           </button>
@@ -159,12 +159,12 @@ function ShopContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-muted">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Shop</h1>
-          <p className="text-gray-600">Browse our collection of premium products</p>
+          <h1 className="text-4xl font-bold text-foreground mb-2">Shop</h1>
+          <p className="text-muted-foreground">Browse our collection of premium products</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
@@ -173,7 +173,7 @@ function ShopContent() {
             <div className="space-y-6 sticky top-20">
               {/* Search */}
               <div>
-                <label htmlFor="search-input" className="block text-sm font-semibold text-gray-900 mb-3">
+                <label htmlFor="search-input" className="block text-sm font-semibold text-foreground mb-3">
                   Search
                 </label>
                 <input
@@ -182,20 +182,20 @@ function ShopContent() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search products..."
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-card text-foreground placeholder-gray-500 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                 />
               </div>
 
               {/* Categories */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Category</label>
+                <label className="block text-sm font-semibold text-foreground mb-3">Category</label>
                 <div className="space-y-2">
                   <button
                     onClick={() => setSelectedCategory('')}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                       !selectedCategory
-                        ? 'bg-blue-600 text-white'
-                        : 'hover:bg-gray-100 text-gray-900'
+                        ? 'bg-primary text-white'
+                        : 'hover:bg-secondary text-foreground'
                     }`}
                   >
                     All Products ({products.length})
@@ -206,8 +206,8 @@ function ShopContent() {
                       onClick={() => setSelectedCategory(cat.id)}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                         selectedCategory === cat.id
-                          ? 'bg-blue-600 text-white'
-                          : 'hover:bg-gray-100 text-gray-900'
+                          ? 'bg-primary text-white'
+                          : 'hover:bg-secondary text-foreground'
                       }`}
                     >
                       <span className="flex items-center justify-between">
@@ -221,12 +221,12 @@ function ShopContent() {
 
               {/* Price Range */}
               <div>
-                <label className="block text-sm font-semibold text-gray-900 mb-3">Price Range</label>
+                <label className="block text-sm font-semibold text-foreground mb-3">Price Range</label>
                 <div className="space-y-2">
                   <button
                     onClick={() => setSelectedPriceRange('')}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      !selectedPriceRange ? 'bg-blue-600 text-white' : 'hover:bg-gray-100 text-gray-900'
+                      !selectedPriceRange ? 'bg-primary text-white' : 'hover:bg-secondary text-foreground'
                     }`}
                   >
                     All Prices
@@ -237,8 +237,8 @@ function ShopContent() {
                       onClick={() => setSelectedPriceRange(range.id)}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                         selectedPriceRange === range.id
-                          ? 'bg-blue-600 text-white'
-                          : 'hover:bg-gray-100 text-gray-900'
+                          ? 'bg-primary text-white'
+                          : 'hover:bg-secondary text-foreground'
                       }`}
                     >
                       {range.name}
@@ -249,7 +249,7 @@ function ShopContent() {
 
               {/* Sort */}
               <div>
-                <label htmlFor="sort-select" className="block text-sm font-semibold text-gray-900 mb-3">
+                <label htmlFor="sort-select" className="block text-sm font-semibold text-foreground mb-3">
                   Sort By
                 </label>
                 <select
@@ -257,7 +257,7 @@ function ShopContent() {
                   aria-label="Sort products by"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-card text-foreground focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                 >
                   <option value="newest">Newest</option>
                   <option value="price-low">Price: Low to High</option>
@@ -275,7 +275,7 @@ function ShopContent() {
                     setSelectedPriceRange('')
                     setSortBy('newest')
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-gray-900 hover:bg-gray-100 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-gray-300 text-foreground hover:bg-secondary transition-colors"
                 >
                   <X className="h-4 w-4" />
                   Clear Filters
@@ -288,18 +288,18 @@ function ShopContent() {
           <main className="lg:col-span-3">
             {/* Results Info and Controls */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Showing {paginatedProducts.length} of {filtered.length} products
               </p>
               <div className="flex items-center gap-4">
-                <label htmlFor="items-per-page" className="text-sm text-gray-600">
+                <label htmlFor="items-per-page" className="text-sm text-muted-foreground">
                   Show:
                 </label>
                 <select
                   id="items-per-page"
                   value={itemsPerPage}
                   onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                  className="px-2 py-1 rounded-lg border border-gray-300 bg-white text-gray-900 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
+                  className="px-2 py-1 rounded-lg border border-gray-300 bg-card text-foreground focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600"
                 >
                   {ITEMS_PER_PAGE_OPTIONS.map((option) => (
                     <option key={option} value={option}>
@@ -319,14 +319,14 @@ function ShopContent() {
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-gray-600 mb-4">No products found matching your filters</p>
+                <p className="text-muted-foreground mb-4">No products found matching your filters</p>
                 <button
                   onClick={() => {
                     setSearchQuery('')
                     setSelectedCategory('')
                     setSelectedPriceRange('')
                   }}
-                  className="text-blue-600 hover:text-blue-800 font-semibold transition-colors"
+                  className="text-primary hover:text-blue-800 font-semibold transition-colors"
                 >
                   Clear filters and try again
                 </button>
@@ -339,7 +339,7 @@ function ShopContent() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                   disabled={currentPage === 1}
-                  className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-gray-300 hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Previous page"
                 >
                   <ChevronLeft className="h-5 w-5" />
@@ -351,8 +351,8 @@ function ShopContent() {
                       onClick={() => setCurrentPage(page)}
                       className={`px-3 py-1 rounded-lg transition-colors ${
                         currentPage === page
-                          ? 'bg-blue-600 text-white'
-                          : 'hover:bg-gray-100 text-gray-900'
+                          ? 'bg-primary text-white'
+                          : 'hover:bg-secondary text-foreground'
                       }`}
                     >
                       {page}
@@ -362,7 +362,7 @@ function ShopContent() {
                 <button
                   onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                   disabled={currentPage === totalPages}
-                  className="p-2 rounded-lg border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-2 rounded-lg border border-gray-300 hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   aria-label="Next page"
                 >
                   <ChevronRight className="h-5 w-5" />
@@ -383,7 +383,7 @@ export default function ShopPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
-          <p className="text-gray-600">Loading shop...</p>
+          <p className="text-muted-foreground">Loading shop...</p>
         </div>
       </div>
     }>

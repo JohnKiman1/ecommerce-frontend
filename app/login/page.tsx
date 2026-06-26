@@ -17,27 +17,27 @@ export default function LoginPage() {
   }, [isAuthenticated, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-muted">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your account to continue</p>
+          <h1 className="text-3xl font-bold text-foreground">Welcome Back</h1>
+          <p className="text-muted-foreground">Sign in to your account to continue</p>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
+        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <AuthForm mode="login" />
 
           <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Don&apos;t have an account?{' '}
-              <Link href="/register" className="text-blue-600 hover:text-blue-800 font-semibold transition-colors">
+              <Link href="/register" className="text-primary hover:text-blue-800 font-semibold transition-colors">
                 Create one
               </Link>
             </p>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <p className="text-xs text-center text-gray-500">
+          <div className="mt-4 pt-4 border-t border-border">
+            <p className="text-xs text-center text-muted-foreground/80">
               Test Users: <strong>admin</strong> / <strong>admin123</strong> |{' '}
               <strong>viewer</strong> / <strong>viewer123</strong>
             </p>

@@ -45,18 +45,18 @@ export default function AdminLayout({
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-muted">
         <div className="flex">
           {/* Sidebar */}
-          <aside className="w-64 min-h-screen bg-white border-r border-gray-200 p-4 sticky top-0">
+          <aside className="w-64 min-h-screen bg-card border-r border-border p-4 sticky top-0">
             <div className="mb-8">
               <div className="flex items-center gap-2">
-                <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
                   <span className="text-white font-bold text-sm">A</span>
                 </div>
                 <div>
-                  <h1 className="text-xl font-bold text-gray-900">Admin</h1>
-                  <p className="text-xs text-gray-500">Dashboard</p>
+                  <h1 className="text-xl font-bold text-foreground">Admin</h1>
+                  <p className="text-xs text-muted-foreground/80">Dashboard</p>
                 </div>
               </div>
             </div>
@@ -70,19 +70,19 @@ export default function AdminLayout({
                     href={item.href}
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
                       isActive
-                        ? 'bg-blue-50 text-blue-700 font-medium'
-                        : 'text-gray-700 hover:bg-gray-100'
+                        ? 'bg-primary/10 text-blue-700 font-medium'
+                        : 'text-foreground/80 hover:bg-secondary'
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-blue-600' : 'text-gray-500'}`} />
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground/80'}`} />
                     {item.label}
                   </Link>
                 )
               })}
-              <div className="border-t border-gray-200 my-4"></div>
+              <div className="border-t border-border my-4"></div>
               <button
                 onClick={logout}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-gray-100 transition-colors text-red-600 w-full"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors text-red-600 w-full"
               >
                 <LogOut className="h-5 w-5" />
                 Logout
