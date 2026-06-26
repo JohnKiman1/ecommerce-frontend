@@ -235,7 +235,6 @@ export const api = {
     return response.json();
   },
 
-  // ✅ ADD THIS: Update order status
   updateOrderStatus: async (orderId: number, status: string): Promise<Order> => {
     const response = await fetch(`${API_BASE}/orders/${orderId}/status`, {
       method: 'PUT',
@@ -252,6 +251,14 @@ export const api = {
   // ============================================
   // REVIEW ENDPOINTS
   // ============================================
+
+  getReviews: async (productId: number) => {
+    const response = await fetch(`${API_BASE}/products/${productId}/reviews`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch reviews');
+    }
+    return response.json();
+  },
 
   createReview: async (productId: number, data: { rating: number; comment: string }) => {
     const response = await fetch(`${API_BASE}/products/${productId}/reviews`, {
@@ -270,10 +277,14 @@ export const api = {
     return response.json();
   },
 
-  getReviews: async (productId: number) => {
-    const response = await fetch(`${API_BASE}/products/${productId}/reviews`);
+  // ✅ ADD THIS: Delete a review
+  deleteReview: async (reviewId: number) => {
+    const response = await fetch(`${API_BASE}/reviews/${reviewId}`, {
+      method: 'DELETE'
+    });
     if (!response.ok) {
-      throw new Error('Failed to fetch reviews');
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete review');
     }
     return response.json();
   },
@@ -359,4 +370,4 @@ export const api = {
     }
     return response.json();
   }
-}; 
+};
