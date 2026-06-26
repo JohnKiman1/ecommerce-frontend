@@ -1,11 +1,11 @@
-// app/admin/reviews/page.tsx
 'use client'
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
 import { api } from '@/lib/api'
-import { Star, Trash2, User, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Star, Trash2, User, CheckCircle, XCircle, Clock, Eye } from 'lucide-react'
+import Link from 'next/link'
 
 interface Review {
   id: number
@@ -15,7 +15,7 @@ interface Review {
   comment: string
   status: string
   created_at: string
-  product_name?: string  // ✅ Made optional
+  product_name?: string
   users?: {
     username: string
     name: string
@@ -53,14 +53,12 @@ export default function AdminReviews() {
   const fetchReviews = async () => {
     try {
       setLoading(true)
-      // Fetch all reviews - get products first, then their reviews
       const products = await api.getProducts()
       let allReviews: Review[] = []
       
       for (const product of products) {
         try {
           const productReviews = await api.getReviews(product.id)
-          // ✅ Add product_name to each review
           const reviewsWithProduct = productReviews.map((r: any) => ({ 
             ...r, 
             product_name: product.name 
@@ -70,6 +68,8 @@ export default function AdminReviews() {
           // Skip if no reviews
         }
       }
+      
+      allReviews.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       
       setReviews(allReviews)
       setFilteredReviews(allReviews)
@@ -98,7 +98,7 @@ export default function AdminReviews() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
       </div>
     )
   }
@@ -113,39 +113,37 @@ export default function AdminReviews() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-3xl font-bold text-foreground">Reviews</h1>
-          <p className="text-sm text-muted-foreground/80 mt-1">Manage customer reviews</p>
+          <p className="text-sm text-muted-foreground mt-1">Manage customer reviews</p>
         </div>
         <button
           onClick={fetchReviews}
-          className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
+          className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors text-sm"
         >
           Refresh
         </button>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-muted-foreground/80">Total Reviews</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-border">
+          <p className="text-sm text-muted-foreground">Total Reviews</p>
           <p className="text-xl font-bold text-foreground">{reviews.length}</p>
         </div>
-        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-muted-foreground/80">Pending</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-border">
+          <p className="text-sm text-muted-foreground">Pending</p>
           <p className="text-xl font-bold text-yellow-600">{statusCounts.pending || 0}</p>
         </div>
-        <div className="bg-card rounded-lg shadow-sm p-4 border border-gray-100">
-          <p className="text-sm text-muted-foreground/80">Approved</p>
+        <div className="bg-card rounded-lg shadow-sm p-4 border border-border">
+          <p className="text-sm text-muted-foreground">Approved</p>
           <p className="text-xl font-bold text-green-600">{statusCounts.approved || 0}</p>
         </div>
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap items-center gap-4 mb-6">
         <div>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as typeof filterStatus)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+            className="px-4 py-2 border border-input rounded-lg focus:ring-2 focus:ring-primary focus:border-primary bg-background text-foreground"
             title="Filter reviews by status"
             aria-label="Filter reviews by status"
           >
@@ -155,19 +153,21 @@ export default function AdminReviews() {
             <option value="rejected">Rejected</option>
           </select>
         </div>
+        <span className="text-sm text-muted-foreground">
+          Showing {filteredReviews.length} of {reviews.length} reviews
+        </span>
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-4">
+        <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg mb-4">
           {error}
         </div>
       )}
 
-      {/* Reviews Table */}
-      <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-gray-100">
+      <div className="bg-card rounded-lg shadow-sm overflow-hidden border border-border">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-muted">
+            <thead className="bg-muted/50">
               <tr>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Product</th>
                 <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">User</th>
@@ -177,11 +177,16 @@ export default function AdminReviews() {
                 <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {filteredReviews.map((review) => (
-                <tr key={review.id} className="hover:bg-muted transition-colors">
+                <tr key={review.id} className="hover:bg-muted/30 transition-colors">
                   <td className="px-6 py-4 text-sm text-foreground">
-                    {review.product_name || review.products?.name || `Product #${review.product_id}`}
+                    <Link 
+                      href={`/product/${review.product_id}`}
+                      className="hover:text-primary transition-colors"
+                    >
+                      {review.product_name || review.products?.name || `Product #${review.product_id}`}
+                    </Link>
                   </td>
                   <td className="px-6 py-4 text-sm text-muted-foreground">
                     {review.users?.name || review.users?.username || `User #${review.user_id}`}
@@ -194,7 +199,7 @@ export default function AdminReviews() {
                           className={`h-4 w-4 ${
                             star <= review.rating
                               ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
+                              : 'text-muted-foreground/30'
                           }`}
                         />
                       ))}
@@ -206,10 +211,10 @@ export default function AdminReviews() {
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium ${
                       review.status === 'approved' 
-                        ? 'bg-green-100 text-green-800'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
                         : review.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
+                        ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                        : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400'
                     }`}>
                       {review.status === 'approved' && <CheckCircle className="h-3 w-3" />}
                       {review.status === 'rejected' && <XCircle className="h-3 w-3" />}
@@ -218,19 +223,28 @@ export default function AdminReviews() {
                     </span>
                   </td>
                   <td className="px-6 py-4">
-                    <button
-                      onClick={() => handleDelete(review.id)}
-                      disabled={deletingId === review.id}
-                      className="text-red-600 hover:text-red-800 transition-colors disabled:opacity-50"
-                      title="Delete review"
-                      aria-label="Delete review"
-                    >
-                      {deletingId === review.id ? (
-                        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-red-600 border-t-transparent"></span>
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <Link
+                        href={`/product/${review.product_id}`}
+                        className="text-primary hover:text-primary/80 transition-colors"
+                        title="View product"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(review.id)}
+                        disabled={deletingId === review.id}
+                        className="text-destructive hover:text-destructive/80 transition-colors disabled:opacity-50"
+                        title="Delete review"
+                        aria-label="Delete review"
+                      >
+                        {deletingId === review.id ? (
+                          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-destructive border-t-transparent"></span>
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -239,7 +253,7 @@ export default function AdminReviews() {
         </div>
         {filteredReviews.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground/80">No reviews found</p>
+            <p className="text-muted-foreground">No reviews found</p>
           </div>
         )}
       </div>

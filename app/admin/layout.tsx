@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect } from 'react'
 import Link from 'next/link'
-import { LayoutDashboard, Package, Users, ShoppingCart, LogOut } from 'lucide-react'
+import { LayoutDashboard, Package, Users, ShoppingCart, LogOut, Star } from 'lucide-react'
 import { ToastProvider } from '@/contexts/ToastContext'
 
 export default function AdminLayout({
@@ -38,25 +38,25 @@ export default function AdminLayout({
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/admin/products', label: 'Products', icon: Package },
-    { href: '/admin/users', label: 'Users', icon: Users },
     { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-    
+    { href: '/admin/users', label: 'Users', icon: Users },
+    { href: '/admin/reviews', label: 'Reviews', icon: Star }, // ✅ Added Reviews link
   ]
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-muted">
+      <div className="min-h-screen bg-muted/30">
         <div className="flex">
           {/* Sidebar */}
           <aside className="w-64 min-h-screen bg-card border-r border-border p-4 sticky top-0">
             <div className="mb-8">
               <div className="flex items-center gap-2">
                 <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">A</span>
+                  <span className="text-primary-foreground font-bold text-sm">A</span>
                 </div>
                 <div>
                   <h1 className="text-xl font-bold text-foreground">Admin</h1>
-                  <p className="text-xs text-muted-foreground/80">Dashboard</p>
+                  <p className="text-xs text-muted-foreground">Dashboard</p>
                 </div>
               </div>
             </div>
@@ -70,11 +70,11 @@ export default function AdminLayout({
                     href={item.href}
                     className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
                       isActive
-                        ? 'bg-primary/10 text-blue-700 font-medium'
-                        : 'text-foreground/80 hover:bg-secondary'
+                        ? 'bg-primary/10 text-primary font-medium'
+                        : 'text-foreground/80 hover:bg-muted'
                     }`}
                   >
-                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground/80'}`} />
+                    <Icon className={`h-5 w-5 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
                     {item.label}
                   </Link>
                 )
@@ -82,7 +82,7 @@ export default function AdminLayout({
               <div className="border-t border-border my-4"></div>
               <button
                 onClick={logout}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-secondary transition-colors text-red-600 w-full"
+                className="flex items-center gap-3 px-4 py-2.5 rounded-lg hover:bg-muted transition-colors text-destructive w-full"
               >
                 <LogOut className="h-5 w-5" />
                 Logout
