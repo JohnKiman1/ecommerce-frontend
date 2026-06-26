@@ -1,3 +1,4 @@
+// components/Header.tsx
 'use client'
 
 import Link from 'next/link'
@@ -5,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useCart } from '@/contexts/CartContext'
 import { ShoppingBag, LogOut, User, Menu } from 'lucide-react'
 import { useState } from 'react'
+import ThemeToggle from './ThemeToggle' 
 
 export function Header() {
   const { user, logout, isAuthenticated } = useAuth()
@@ -12,13 +14,13 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
+    <header className="sticky top-0 z-50 border-b border-border bg-background shadow-sm">
       <nav className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">SH</span>
+              <span className="text-primary-foreground font-bold text-sm">SH</span>
             </div>
             <span className="text-xl font-bold text-foreground hidden sm:inline">StyleHub</span>
           </Link>
@@ -48,6 +50,9 @@ export function Header() {
               <Menu className="h-5 w-5" />
             </button>
 
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
                 <Link
@@ -61,7 +66,7 @@ export function Header() {
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-foreground/80 hover:text-red-600 transition-colors"
+                  className="text-foreground/80 hover:text-destructive transition-colors"
                   title="Logout"
                   aria-label="Logout"
                 >
@@ -84,7 +89,7 @@ export function Header() {
             >
               <ShoppingBag className="h-5 w-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 h-5 w-5 bg-primary text-white rounded-full flex items-center justify-center text-xs font-bold">
+                <span className="absolute -top-2 -right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
                   {totalItems > 99 ? '99+' : totalItems}
                 </span>
               )}
@@ -116,6 +121,9 @@ export function Header() {
             >
               Contact
             </Link>
+            <div className="pt-2 border-t border-border">
+              <ThemeToggle />
+            </div>
             {!isAuthenticated && (
               <Link
                 href="/login"
