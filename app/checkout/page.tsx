@@ -136,7 +136,9 @@ function CheckoutContent() {
     setIsProcessing(true)
     
     try {
-      // Create order data
+      console.log('📝 Cart items:', cartItems)
+      console.log('📝 User ID:', user?.id)
+      
       const orderData = {
         user_id: user?.id,
         items: cartItems.map(item => ({
@@ -163,8 +165,9 @@ function CheckoutContent() {
         payment_method: 'credit_card',
         status: 'confirmed',
       }
-
-      // ✅ Save order to database
+      
+      console.log('📦 Sending order data:', orderData)
+      
       const result = await api.createOrder(orderData)
       console.log('✅ Order placed:', result)
       

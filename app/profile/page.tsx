@@ -108,23 +108,36 @@ function ProfileContent() {
     }
   }
 
-  const fetchOrders = async () => {
-    if (!user) return
-    try {
-      setLoadingOrders(true)
-      const data = await api.getOrders(user.id)
-      // Parse items if they're stored as JSON string
-      const ordersWithItems = data.map((order: any) => ({
-        ...order,
-        items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : []
-      }))
-      setOrders(ordersWithItems || [])
-    } catch (err) {
-      console.error('Failed to load orders:', err)
-    } finally {
-      setLoadingOrders(false)
+// Update the fetchOrders function
+const fetchOrders = async () => {
+  if (!user) return
+  try {
+    setLoadingOrders(true)
+    console.log('📝 Fetching orders for user:', user.id)
+    
+    const data = await api.getOrders(user.id)
+    console.log('📦 Orders data:', data)
+    console.log('📦 Orders count:', data ? data.length : 0)
+    
+    // Parse items if they're stored as JSON string
+    const ordersWithItems = (data || []).map((order: any) => ({
+      ...order,
+      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : []
+    }))
+    
+    console.log('✅ Parsed orders:', ordersWithItems)
+    setOrders(ordersWithItems)
+    
+    if (ordersWithItems.length === 0) {
+      console.log('ℹ️ No orders found for user:', user.id)
     }
+  } catch (err) {
+    console.error('❌ Failed to load orders:', err)
+    showToast('Failed to load orders', 'error')
+  } finally {
+    setLoadingOrders(false)
   }
+}
 
   const fetchAddresses = async () => {
     // For now, use mock data since backend doesn't have addresses table yet
@@ -617,7 +630,7 @@ function ProfileContent() {
                 <div className="flex justify-center py-12">
                   <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
                 </div>
-              ) : orders.length > 0 ? (
+              ) : orders && orders.length > 0 ? (
                 <div className="space-y-4">
                   {orders.map((order) => (
                     <div 
@@ -642,7 +655,7 @@ function ProfileContent() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="font-bold text-gray-900">${order.total.toFixed(2)}</p>
+                          <p className="font-bold text-gray-900">${(order.total || 0).toFixed(2)}</p>
                           <p className="text-xs text-gray-500">{order.items?.length || 0} items</p>
                           <span className="text-xs text-blue-600 flex items-center gap-1 justify-end mt-1">
                             View Details <ChevronRight className="h-3 w-3" />
