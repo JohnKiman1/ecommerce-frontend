@@ -3,50 +3,65 @@
 import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCart } from '@/contexts/CartContext'
-import { ShoppingBag, LogOut, User } from 'lucide-react'
+import { ShoppingBag, LogOut, User, Menu } from 'lucide-react'
+import { useState } from 'react'
 
 export function Header() {
   const { user, logout, isAuthenticated } = useAuth()
-  const { cartItemsCount } = useCart()
+  const { totalItems } = useCart()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-card">
+    <header className="sticky top-0 z-50 border-b border-gray-200 bg-white shadow-sm">
       <nav className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 bg-primary rounded-lg"></div>
-            <span className="text-xl font-bold text-primary hidden sm:inline">StyleHub</span>
+            <div className="h-8 w-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-sm">SH</span>
+            </div>
+            <span className="text-xl font-bold text-gray-900 hidden sm:inline">StyleHub</span>
           </Link>
 
-          {/* Navigation Links */}
+          {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/shop" className="text-foreground hover:text-primary transition-colors">
+            <Link href="/shop" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Shop
             </Link>
-            <Link href="/about" className="text-foreground hover:text-primary transition-colors">
+            <Link href="/about" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               About
             </Link>
-            <Link href="/contact" className="text-foreground hover:text-primary transition-colors">
+            <Link href="/contact" className="text-gray-700 hover:text-blue-600 transition-colors font-medium">
               Contact
             </Link>
           </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-4">
+            {/* Mobile Menu Toggle */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-gray-700 hover:text-gray-900"
+              aria-label="Toggle menu"
+              title="Toggle menu"
+            >
+              <Menu className="h-5 w-5" />
+            </button>
+
             {isAuthenticated ? (
               <div className="flex items-center gap-4">
                 <Link
                   href="/profile"
-                  className="flex items-center gap-1 text-foreground hover:text-primary transition-colors"
+                  className="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition-colors"
                   title="View Profile"
+                  aria-label="View Profile"
                 >
                   <User className="h-5 w-5" />
-                  <span className="hidden sm:inline text-sm">{user?.name}</span>
+                  <span className="hidden sm:inline text-sm font-medium">{user?.name || user?.username}</span>
                 </Link>
                 <button
                   onClick={logout}
-                  className="text-foreground hover:text-destructive transition-colors"
+                  className="text-gray-700 hover:text-red-600 transition-colors"
                   title="Logout"
                   aria-label="Logout"
                 >
@@ -54,8 +69,8 @@ export function Header() {
                 </button>
               </div>
             ) : (
-              <Link href="/login" className="text-foreground hover:text-primary transition-colors">
-                <span className="hidden sm:inline text-sm">Sign In</span>
+              <Link href="/login" className="text-gray-700 hover:text-blue-600 transition-colors">
+                <span className="hidden sm:inline text-sm font-medium">Sign In</span>
                 <User className="h-5 w-5 sm:hidden" />
               </Link>
             )}
@@ -63,18 +78,55 @@ export function Header() {
             {/* Cart */}
             <Link
               href="/cart"
-              className="relative flex items-center text-foreground hover:text-primary transition-colors"
+              className="relative flex items-center text-gray-700 hover:text-blue-600 transition-colors"
               title="View Cart"
+              aria-label="View Cart"
             >
               <ShoppingBag className="h-5 w-5" />
-              {cartItemsCount > 0 && (
-                <span className="absolute -top-2 -right-2 h-5 w-5 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-bold">
-                  {cartItemsCount}
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 h-5 w-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                  {totalItems > 99 ? '99+' : totalItems}
                 </span>
               )}
             </Link>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {isMobileMenuOpen && (
+          <div className="md:hidden mt-4 pt-4 border-t border-gray-200 space-y-3">
+            <Link
+              href="/shop"
+              className="block text-gray-700 hover:text-blue-600 transition-colors font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Shop
+            </Link>
+            <Link
+              href="/about"
+              className="block text-gray-700 hover:text-blue-600 transition-colors font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="block text-gray-700 hover:text-blue-600 transition-colors font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Contact
+            </Link>
+            {!isAuthenticated && (
+              <Link
+                href="/login"
+                className="block text-gray-700 hover:text-blue-600 transition-colors font-medium"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
+        )}
       </nav>
     </header>
   )

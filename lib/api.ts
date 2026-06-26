@@ -5,8 +5,10 @@ export interface User {
   id: number;
   username: string;
   role: string;
-  email?: string; 
-  name?: string; 
+  email?: string;
+  name?: string;
+  phone?: string;
+  created_at?: string;
 }
 
 export interface Product {
@@ -45,10 +47,14 @@ export interface Order {
   payment_method: string;
   created_at: string;
   updated_at: string;
+  items?: any[];
 }
 
 export const api = {
-  // Auth
+  // ============================================
+  // AUTH ENDPOINTS
+  // ============================================
+  
   login: async (username: string, password: string) => {
     const response = await fetch(`${API_BASE}/login`, {
       method: 'POST',
@@ -79,7 +85,10 @@ export const api = {
     return response.json();
   },
 
-  // Products
+  // ============================================
+  // PRODUCT ENDPOINTS
+  // ============================================
+
   getProducts: async (): Promise<Product[]> => {
     const response = await fetch(`${API_BASE}/products`);
     if (!response.ok) {
@@ -96,7 +105,6 @@ export const api = {
     return response.json();
   },
 
-  // ✅ NEW: Create product
   createProduct: async (product: any): Promise<Product> => {
     const response = await fetch(`${API_BASE}/products`, {
       method: 'POST',
@@ -110,7 +118,6 @@ export const api = {
     return response.json();
   },
 
-  // ✅ NEW: Update product
   updateProduct: async (id: number, product: any): Promise<Product> => {
     const response = await fetch(`${API_BASE}/products/${id}`, {
       method: 'PUT',
@@ -124,7 +131,6 @@ export const api = {
     return response.json();
   },
 
-  // ✅ NEW: Delete product
   deleteProduct: async (id: number): Promise<void> => {
     const response = await fetch(`${API_BASE}/products/${id}`, {
       method: 'DELETE'
@@ -135,7 +141,10 @@ export const api = {
     }
   },
 
-  // Cart
+  // ============================================
+  // CART ENDPOINTS
+  // ============================================
+
   getCart: async (userId: number): Promise<CartItem[]> => {
     const response = await fetch(`${API_BASE}/cart/${userId}`);
     if (!response.ok) {
@@ -192,7 +201,10 @@ export const api = {
     return response.json();
   },
 
-  // Orders
+  // ============================================
+  // ORDER ENDPOINTS
+  // ============================================
+
   createOrder: async (orderData: any) => {
     const response = await fetch(`${API_BASE}/orders`, {
       method: 'POST',
@@ -214,7 +226,37 @@ export const api = {
     return response.json();
   },
 
-  // Profile
+  // ✅ NEW: Get single order
+  getOrder: async (userId: number, orderId: number): Promise<Order> => {
+    const response = await fetch(`${API_BASE}/orders/${userId}/${orderId}`);
+    if (!response.ok) {
+      throw new Error('Order not found');
+    }
+    return response.json();
+  },
+
+  // ✅ NEW: Create a review
+  createReview: async (productId: number, data: { rating: number; comment: string }) => {
+    const response = await fetch(`${API_BASE}/products/${productId}/reviews`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: 1, // This should come from auth context
+        rating: data.rating,
+        comment: data.comment
+      })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to submit review');
+    }
+    return response.json();
+  },
+
+  // ============================================
+  // USER PROFILE ENDPOINTS
+  // ============================================
+
   getProfile: async (userId: number) => {
     const response = await fetch(`${API_BASE}/profile/${userId}`);
     if (!response.ok) {
@@ -223,7 +265,7 @@ export const api = {
     return response.json();
   },
 
-  updateProfile: async (userId: number, data: { email?: string; name?: string }) => {
+  updateProfile: async (userId: number, data: { email?: string; name?: string; phone?: string }) => {
     const response = await fetch(`${API_BASE}/profile/${userId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -236,47 +278,65 @@ export const api = {
     return response.json();
   },
 
-  // Users
-getUsers: async (): Promise<User[]> => {
-  const response = await fetch(`${API_BASE}/users`);
-  if (!response.ok) {
-    throw new Error('Failed to fetch users');
-  }
-  return response.json();
-},
+  // ============================================
+  // USER MANAGEMENT ENDPOINTS (Admin Only)
+  // ============================================
 
-getUser: async (id: number): Promise<User> => {
-  const response = await fetch(`${API_BASE}/users/${id}`);
-  if (!response.ok) {
-    throw new Error('User not found');
-  }
-  return response.json();
-},
+  getUsers: async (): Promise<User[]> => {
+    const response = await fetch(`${API_BASE}/users`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch users');
+    }
+    return response.json();
+  },
 
-updateUserRole: async (id: number, role: string): Promise<User> => {
-  const response = await fetch(`${API_BASE}/users/${id}/role`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ role })
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update user role');
-  }
-  return response.json();
-},
+  getUser: async (id: number): Promise<User> => {
+    const response = await fetch(`${API_BASE}/users/${id}`);
+    if (!response.ok) {
+      throw new Error('User not found');
+    }
+    return response.json();
+  },
 
-deleteUser: async (id: number): Promise<void> => {
-  const response = await fetch(`${API_BASE}/users/${id}`, {
-    method: 'DELETE'
-  });
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to delete user');
-  }
-},
+  updateUserRole: async (id: number, role: string): Promise<User> => {
+    const response = await fetch(`${API_BASE}/users/${id}/role`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update user role');
+    }
+    return response.json();
+  },
 
-  // Reset Database
+  deleteUser: async (id: number): Promise<void> => {
+    const response = await fetch(`${API_BASE}/users/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to delete user');
+    }
+  },
+
+  // ============================================
+  // REVIEW ENDPOINTS
+  // ============================================
+
+  getReviews: async (productId: number) => {
+    const response = await fetch(`${API_BASE}/products/${productId}/reviews`);
+    if (!response.ok) {
+      throw new Error('Failed to fetch reviews');
+    }
+    return response.json();
+  },
+
+  // ============================================
+  // UTILITY ENDPOINTS
+  // ============================================
+
   resetDatabase: async () => {
     const response = await fetch(`${API_BASE}/reset`, {
       method: 'POST'

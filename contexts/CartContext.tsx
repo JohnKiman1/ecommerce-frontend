@@ -48,10 +48,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // ✅ UPDATED: Add item with duplicate prevention
   const addItem = async (productId: number, quantity: number = 1, size?: string) => {
     if (!user) return;
     try {
-      await api.addToCart(user.id, productId, quantity, size);
+      // First, get the current cart to check if item exists
+      const currentCart = await api.getCart(user.id);
+      
+      // Check if item with same product_id and size exists
+      const existingItem = currentCart.find(
+        (item) => item.product_id === productId && item.size === size
+      );
+      
+      if (existingItem) {
+        // ✅ Update existing item quantity
+        await api.updateCartItem(existingItem.id, existingItem.quantity + quantity);
+      } else {
+        // ✅ Add new item
+        await api.addToCart(user.id, productId, quantity, size);
+      }
+      
       await fetchCart();
     } catch (error) {
       console.error('Failed to add to cart:', error);
