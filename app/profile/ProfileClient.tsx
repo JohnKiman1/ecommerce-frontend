@@ -183,6 +183,7 @@ export default function ProfileClient() {
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       placeholder="Enter your full name"
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      title="Enter your full name"
                     />
                   </div>
                 </div>
@@ -201,6 +202,7 @@ export default function ProfileClient() {
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="Enter your email address"
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      title="Enter your email address"
                     />
                   </div>
                 </div>
@@ -219,6 +221,7 @@ export default function ProfileClient() {
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       placeholder="Enter your phone number"
                       className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                      title="Enter your phone number"
                     />
                   </div>
                 </div>
@@ -258,7 +261,7 @@ export default function ProfileClient() {
                   </div>
                 </div>
 
-                {/* Member Since (Read-only) */}
+                {/* Member Since (Read-only) - ✅ Fixed typo */}
                 <div>
                   <label htmlFor="profile-created" className="block text-sm font-medium text-gray-700 mb-1">
                     Member Since
@@ -268,7 +271,7 @@ export default function ProfileClient() {
                     <input
                       id="profile-created"
                       type="text"
-                      value={new Date(profile.created_at).toLocaleDateDateString('en-US', {
+                      value={new Date(profile.created_at).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric',
