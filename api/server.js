@@ -459,42 +459,44 @@ app.delete('/api/cart/user/:userId', async (req, res) => {
 
 // CREATE order (existing)
 app.post('/api/orders', async (req, res) => {
+  // ... existing code
+});
+
+// GET user orders (existing)
+app.get('/api/orders/:userId', async (req, res) => {
+  // ... existing code
+});
+
+// ✅ ADD THIS: GET single order by ID
+app.get('/api/orders/:userId/:orderId', async (req, res) => {
   try {
-    const { user_id, items, subtotal, shipping, tax, total, shipping_address, payment_method, status } = req.body;
+    const { userId, orderId } = req.params;
     
-    console.log('📝 Creating order for user:', user_id);
-    
-    const orderData = {
-      user_id,
-      items: JSON.stringify(items || []),
-      subtotal,
-      shipping,
-      tax,
-      total,
-      shipping_address: JSON.stringify(shipping_address || {}),
-      payment_method: payment_method || 'credit_card',
-      status: status || 'pending'
-    };
+    console.log(`📝 Fetching order ${orderId} for user ${userId}`);
     
     const { data, error } = await supabase
       .from('orders')
-      .insert([orderData])
-      .select();
+      .select('*')
+      .eq('id', orderId)
+      .eq('user_id', userId)
+      .single();
     
-    if (error) {
-      console.error('❌ Order insert error:', error);
-      throw error;
+    if (error || !data) {
+      console.log('❌ Order not found:', orderId, 'for user:', userId);
+      return res.status(404).json({ error: 'Order not found' });
     }
     
-    await supabase
-      .from('cart_items')
-      .delete()
-      .eq('user_id', user_id);
+    // Parse JSON fields
+    const order = {
+      ...data,
+      items: data.items ? (typeof data.items === 'string' ? JSON.parse(data.items) : data.items) : [],
+      shipping_address: data.shipping_address ? (typeof data.shipping_address === 'string' ? JSON.parse(data.shipping_address) : data.shipping_address) : {}
+    };
     
-    console.log('✅ Order created:', data[0].id);
-    res.status(201).json(data[0]);
+    console.log('✅ Single order fetched:', orderId);
+    res.json(order);
   } catch (error) {
-    console.error('❌ Order error:', error);
+    console.error('❌ Single order error:', error);
     res.status(500).json({ error: error.message });
   }
 });

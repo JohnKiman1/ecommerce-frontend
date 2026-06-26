@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/contexts/AuthContext'
 import { useCart } from '@/contexts/CartContext'
@@ -9,7 +9,7 @@ import { api } from '@/lib/api'
 import { CheckCircle, Loader2, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-export default function CheckoutPage() {
+function CheckoutContent() {
   const router = useRouter()
   const { user, isAuthenticated } = useAuth()
   const { cart, totalPrice, clearCart } = useCart()
@@ -559,5 +559,21 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// ✅ Main page component with Suspense boundary (for future useSearchParams compatibility)
+export default function CheckoutPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <p className="text-gray-600">Loading checkout...</p>
+        </div>
+      </div>
+    }>
+      <CheckoutContent />
+    </Suspense>
   )
 }

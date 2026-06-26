@@ -1,8 +1,9 @@
+// app/profile/page.tsx
 'use client'
 
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { 
   LogOut, User, Mail, Phone, Shield, Calendar, Save, Edit, X, 
   Package, MapPin, ShoppingBag, Plus, Home, Building2, Trash2, Check, ChevronRight
@@ -23,7 +24,7 @@ interface Address {
   isDefault: boolean
 }
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { user, isAuthenticated, logout } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -899,5 +900,21 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  )
+}
+
+// ✅ Main page component with Suspense boundary
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   )
 }
