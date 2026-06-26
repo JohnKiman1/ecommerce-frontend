@@ -1,7 +1,7 @@
 // components/Reviews.tsx
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Star, User, Trash2, X, CheckCircle } from 'lucide-react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useToast } from '@/contexts/ToastContext'
@@ -37,21 +37,25 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  // ✅ Add a state to track if the review check is complete
+  const [reviewCheckComplete, setReviewCheckComplete] = useState(false)
+  const userReviewRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     fetchReviews()
   }, [productId])
 
-  // ✅ Set showForm based on autoOpen only after reviews are loaded
   useEffect(() => {
-    if (!loading && autoOpen && !hasReviewed) {
+    // ✅ Only auto-open after review check is complete and user hasn't reviewed
+    if (!loading && reviewCheckComplete && autoOpen && !hasReviewed) {
       setShowForm(true)
     }
-  }, [loading, autoOpen, hasReviewed])
+  }, [loading, reviewCheckComplete, autoOpen, hasReviewed])
 
   const fetchReviews = async () => {
     try {
       setLoading(true)
+      setReviewCheckComplete(false)
       const data = await api.getReviews(productId)
       setReviews(data)
       
@@ -60,7 +64,6 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
         setHasReviewed(!!existing)
         setUserReview(existing || null)
         
-        // ✅ If user has already reviewed, don't show the form even if autoOpen is true
         if (existing && autoOpen) {
           setShowForm(false)
         }
@@ -69,6 +72,8 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
       console.error('Failed to fetch reviews:', error)
     } finally {
       setLoading(false)
+      // ✅ Mark review check as complete
+      setReviewCheckComplete(true)
     }
   }
 
@@ -79,6 +84,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
       return
     }
 
+    // ✅ Double-check that user hasn't reviewed
     if (hasReviewed) {
       showToast('You have already reviewed this product', 'error')
       return
@@ -99,10 +105,14 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
       setRating(0)
       setComment('')
       showToast('Review submitted successfully! 🎉', 'success')
+      
+      setTimeout(() => {
+        userReviewRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }, 300)
     } catch (error: any) {
       if (error.message?.includes('already reviewed')) {
         showToast('You have already reviewed this product', 'error')
-        // ✅ Refresh reviews to update state
+        // ✅ Refresh to update state
         fetchReviews()
       } else {
         showToast('Failed to submit review', 'error')
@@ -129,7 +139,8 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
     ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
     : 0
 
-  if (loading) {
+  // ✅ Show loading spinner while checking reviews
+  if (loading || !reviewCheckComplete) {
     return (
       <div className="flex justify-center py-8">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
@@ -161,8 +172,8 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
         </div>
       </div>
 
-      {/* ✅ Write Review Section - Disabled if already reviewed */}
-      {isAuthenticated && (
+      {/* ✅ Write Review Section - Only show when review check is complete */}
+      {isAuthenticated && reviewCheckComplete && (
         <div className="flex items-center justify-between">
           {!hasReviewed ? (
             !showForm ? (
@@ -176,16 +187,27 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
               </button>
             ) : null
           ) : (
-            <div className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-sm font-medium">You've already reviewed this product</span>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={`h-4 w-4 ${
+                      star <= (userReview?.rating || 0)
+                        ? 'fill-green-500 text-green-500'
+                        : 'text-gray-300'
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-sm font-medium text-green-600">You've already reviewed this product</span>
             </div>
           )}
         </div>
       )}
 
-      {/* Review Form - Only show if not reviewed */}
-      {showForm && !hasReviewed && (
+      {/* Review Form */}
+      {showForm && !hasReviewed && reviewCheckComplete && (
         <form onSubmit={handleSubmit} className="bg-gray-50 rounded-lg p-4 border border-gray-200">
           <div className="flex items-center justify-between mb-3">
             <h3 className="font-semibold text-gray-900">Write a Review</h3>
@@ -262,7 +284,11 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
 
       {/* User's Own Review */}
       {userReview && (
-        <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <div 
+          ref={userReviewRef}
+          id="user-review"
+          className="bg-blue-50 rounded-lg p-4 border border-blue-200"
+        >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-full bg-blue-200 flex items-center justify-center">
@@ -306,9 +332,7 @@ export default function Reviews({ productId, productName, autoOpen = false }: Re
           <p className="text-gray-500 text-sm">No reviews yet. Be the first to review!</p>
         ) : (
           reviews.map((review) => {
-            // Skip showing user's own review again if it's already shown above
             if (user && review.user_id === user.id) return null
-            
             return (
               <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
                 <div className="flex items-center justify-between">
