@@ -10,16 +10,16 @@ import { useCart } from '@/contexts/CartContext'
 import { useNotification } from '@/contexts/NotificationContext'
 import { api, Product } from '@/lib/api'
 import { getProductById, MOCK_PRODUCTS } from '@/lib/mockData'
-import Reviews from '@/components/Reviews'  // ✅ Import Reviews component
+import Reviews from '@/components/Reviews'
 
 interface ProductDetailClientProps {
   productId: string
-  autoOpenReview?: boolean  // ✅ Add this prop
+  autoOpenReview?: boolean
 }
 
-export default function ProductDetailClient({ 
+export default function ProductDetailClient({
   productId,
-  autoOpenReview = false  // ✅ Default to false
+  autoOpenReview = false
 }: ProductDetailClientProps) {
   const router = useRouter()
   const { addItem } = useCart()
@@ -34,49 +34,42 @@ export default function ProductDetailClient({
     const fetchProduct = async () => {
       try {
         setLoading(true)
-        
-        // Safety check: if productId is undefined or null, handle gracefully
+
         if (!productId) {
           console.error('Product ID is undefined or null')
           setLoading(false)
           return
         }
-        
-        // Convert 'p16' to 16, or use as-is if it's a number
+
         let numericId: number
         if (productId.startsWith('p')) {
           numericId = parseInt(productId.substring(1))
         } else {
           numericId = parseInt(productId)
         }
-        
-        // Check if the ID is valid
+
         if (isNaN(numericId)) {
           console.error('Invalid product ID:', productId)
           setLoading(false)
           return
         }
-        
-        // Fetch from API
+
         const data = await api.getProduct(numericId)
         setProduct(data)
         setSelectedSize(data.sizes?.[0])
-        
-        // Fetch related products (same category)
+
         const allProducts = await api.getProducts()
         const related = allProducts.filter(
           (p) => p.category === data.category && p.id !== data.id
         ).slice(0, 4)
         setRelatedProducts(related)
-        
+
       } catch (error) {
         console.error('Failed to fetch product from API:', error)
-        
-        // Fallback to mock data if API fails
+
         if (productId) {
           const mockProduct = getProductById(productId)
           if (mockProduct) {
-            // Convert mock product to API product format
             const convertedProduct: Product = {
               id: parseInt(mockProduct.id.replace('p', '')),
               name: mockProduct.name,
@@ -92,8 +85,7 @@ export default function ProductDetailClient({
             }
             setProduct(convertedProduct)
             setSelectedSize(convertedProduct.sizes?.[0])
-            
-            // Also fetch related products from mock data
+
             const allMockProducts = MOCK_PRODUCTS
             const related = allMockProducts
               .filter((p) => p.category === mockProduct.category && p.id !== mockProduct.id)
@@ -120,16 +112,15 @@ export default function ProductDetailClient({
         setLoading(false)
       }
     }
-    
+
     fetchProduct()
   }, [productId])
 
-  // Show loading state while checking
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent mx-auto"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
           <p className="mt-4 text-muted-foreground">Loading product...</p>
         </div>
       </div>
@@ -144,7 +135,7 @@ export default function ProductDetailClient({
           <p className="text-muted-foreground">The product you're looking for doesn't exist.</p>
           <button
             onClick={() => router.push('/shop')}
-            className="inline-flex items-center gap-2 text-primary hover:text-blue-800 font-semibold transition-colors"
+            className="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to shop
@@ -160,12 +151,12 @@ export default function ProductDetailClient({
   }
 
   return (
-    <div className="min-h-screen bg-muted">
+    <div className="min-h-screen bg-background">
       {/* Breadcrumb */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-2 text-primary hover:text-blue-800 font-semibold transition-colors"
+          className="flex items-center gap-2 text-primary hover:text-primary/80 font-semibold transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
           Back
@@ -174,7 +165,7 @@ export default function ProductDetailClient({
 
       {/* Product */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-card rounded-lg p-6 shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 bg-card rounded-lg p-6 shadow-sm border border-border">
           {/* Image */}
           <div className="flex items-center justify-center">
             <div className="relative w-full aspect-square rounded-lg bg-secondary overflow-hidden">
@@ -203,9 +194,9 @@ export default function ProductDetailClient({
                   <Star
                     key={i}
                     className={`h-4 w-4 ${
-                      i < Math.round(product.rating || 0) 
-                        ? 'fill-yellow-400 text-yellow-400' 
-                        : 'text-gray-300'
+                      i < Math.round(product.rating || 0)
+                        ? 'fill-yellow-400 text-yellow-400'
+                        : 'text-muted-foreground/30'
                     }`}
                   />
                 ))}
@@ -240,8 +231,8 @@ export default function ProductDetailClient({
                       onClick={() => setSelectedSize(size)}
                       className={`py-2 rounded-lg border transition-colors ${
                         selectedSize === size
-                          ? 'border-blue-600 bg-primary text-white'
-                          : 'border-gray-300 hover:border-blue-600'
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border hover:border-primary hover:bg-muted text-foreground'
                       }`}
                     >
                       {size}
@@ -257,25 +248,25 @@ export default function ProductDetailClient({
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-secondary transition-colors"
+                  className="px-4 py-2 rounded-lg border border-border hover:bg-muted text-foreground transition-colors"
                 >
                   −
                 </button>
-                <span className="text-lg font-semibold">{quantity}</span>
+                <span className="text-lg font-semibold text-foreground">{quantity}</span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-secondary transition-colors"
+                  className="px-4 py-2 rounded-lg border border-border hover:bg-muted text-foreground transition-colors"
                 >
                   +
                 </button>
               </div>
             </div>
 
-            {/* Add to Cart */}
+            {/* Add to Cart - Fixed button text */}
             <button
               onClick={handleAddToCart}
               disabled={!product.in_stock}
-              className="w-full py-3 px-6 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 px-6 bg-primary text-primary-foreground rounded-lg font-semibold hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
               <ShoppingBag className="h-5 w-5" />
               {product.in_stock ? 'Add to Cart' : 'Out of Stock'}
@@ -296,12 +287,12 @@ export default function ProductDetailClient({
         </div>
       </div>
 
-      {/* ✅ Reviews Section */}
+      {/* Reviews Section */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-card rounded-lg p-6 shadow-sm border border-border">
           <h2 className="text-2xl font-bold text-foreground mb-6">Customer Reviews</h2>
-          <Reviews 
-            productId={product.id} 
+          <Reviews
+            productId={product.id}
             productName={product.name}
             autoOpen={autoOpenReview}
           />

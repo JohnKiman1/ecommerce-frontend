@@ -108,36 +108,36 @@ function ProfileContent() {
     }
   }
 
-// Update the fetchOrders function
-const fetchOrders = async () => {
-  if (!user) return
-  try {
-    setLoadingOrders(true)
-    console.log('📝 Fetching orders for user:', user.id)
-    
-    const data = await api.getOrders(user.id)
-    console.log('📦 Orders data:', data)
-    console.log('📦 Orders count:', data ? data.length : 0)
-    
-    // Parse items if they're stored as JSON string
-    const ordersWithItems = (data || []).map((order: any) => ({
-      ...order,
-      items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : []
-    }))
-    
-    console.log('✅ Parsed orders:', ordersWithItems)
-    setOrders(ordersWithItems)
-    
-    if (ordersWithItems.length === 0) {
-      console.log('ℹ️ No orders found for user:', user.id)
+  // Update the fetchOrders function
+  const fetchOrders = async () => {
+    if (!user) return
+    try {
+      setLoadingOrders(true)
+      console.log('📝 Fetching orders for user:', user.id)
+      
+      const data = await api.getOrders(user.id)
+      console.log('📦 Orders data:', data)
+      console.log('📦 Orders count:', data ? data.length : 0)
+      
+      // Parse items if they're stored as JSON string
+      const ordersWithItems = (data || []).map((order: any) => ({
+        ...order,
+        items: order.items ? (typeof order.items === 'string' ? JSON.parse(order.items) : order.items) : []
+      }))
+      
+      console.log('✅ Parsed orders:', ordersWithItems)
+      setOrders(ordersWithItems)
+      
+      if (ordersWithItems.length === 0) {
+        console.log('ℹ️ No orders found for user:', user.id)
+      }
+    } catch (err) {
+      console.error('❌ Failed to load orders:', err)
+      showToast('Failed to load orders', 'error')
+    } finally {
+      setLoadingOrders(false)
     }
-  } catch (err) {
-    console.error('❌ Failed to load orders:', err)
-    showToast('Failed to load orders', 'error')
-  } finally {
-    setLoadingOrders(false)
   }
-}
 
   const fetchAddresses = async () => {
     // For now, use mock data since backend doesn't have addresses table yet
@@ -322,16 +322,17 @@ const fetchOrders = async () => {
     })
   }
 
-  // Order status badge colors
+  // Order status badge colors with dark mode support
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      pending: 'bg-yellow-100 text-yellow-800',
-      confirmed: 'bg-primary/20 text-blue-800',
-      shipped: 'bg-purple-100 text-purple-800',
-      delivered: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-800',
+      pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300',
+      confirmed: 'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300',
+      processing: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300',
+      shipped: 'bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300',
+      delivered: 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300',
+      cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300',
     }
-    return colors[status] || 'bg-secondary text-gray-800'
+    return colors[status] || 'bg-secondary dark:bg-secondary/30 text-gray-800 dark:text-gray-300'
   }
 
   if (!isAuthenticated || !user) {
@@ -415,7 +416,7 @@ const fetchOrders = async () => {
           </div>
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-lg transition-colors"
           >
             <LogOut className="h-4 w-4" />
             Logout
@@ -440,7 +441,7 @@ const fetchOrders = async () => {
                 }}
                 className={`flex items-center gap-2 px-4 py-3 font-medium transition-colors border-b-2 ${
                   activeTab === tab.id
-                    ? 'text-primary border-blue-600'
+                    ? 'text-primary border-blue-600 dark:border-blue-500'
                     : 'text-muted-foreground/80 border-transparent hover:text-foreground/80'
                 }`}
               >
@@ -471,9 +472,9 @@ const fetchOrders = async () => {
                     <p className="text-blue-100">@{displayProfile.username}</p>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 ${
                       displayProfile.role === 'admin' 
-                        ? 'bg-purple-200 text-purple-800' 
+                        ? 'bg-purple-200 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300' 
                         : displayProfile.role === 'locked'
-                        ? 'bg-red-200 text-red-800'
+                        ? 'bg-red-200 text-red-800 dark:bg-red-900/50 dark:text-red-300'
                         : 'bg-card/20 text-white'
                     }`}>
                       {displayProfile.role}
@@ -489,14 +490,14 @@ const fetchOrders = async () => {
                       Full Name
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
                       <input
                         id="profile-name"
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Enter your full name"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                       />
                     </div>
                   </div>
@@ -506,14 +507,14 @@ const fetchOrders = async () => {
                       Email Address
                     </label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
                       <input
                         id="profile-email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="Enter your email address"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                       />
                     </div>
                   </div>
@@ -523,28 +524,28 @@ const fetchOrders = async () => {
                       Phone Number
                     </label>
                     <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 dark:text-gray-500" />
                       <input
                         id="profile-phone"
                         type="tel"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="Enter your phone number"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                       />
                     </div>
-                    <p className="text-xs text-gray-400 mt-1">Format: +1 234 567 890</p>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Format: +1 234 567 890</p>
                   </div>
 
                   <div className="flex gap-3 pt-4 border-t border-border">
                     <button
                       type="submit"
                       disabled={saving}
-                      className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2"
+                      className="px-6 py-2 bg-primary text-primary-foreground dark:text-black rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors flex items-center gap-2"
                     >
                       {saving ? (
                         <>
-                          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></span>
+                          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"></span>
                           Saving...
                         </>
                       ) : (
@@ -557,7 +558,7 @@ const fetchOrders = async () => {
                     <button
                       type="button"
                       onClick={handleCancel}
-                      className="px-6 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors flex items-center gap-2"
+                      className="px-6 py-2 border border-gray-300 dark:border-gray-700 text-foreground/80 rounded-lg hover:bg-muted transition-colors flex items-center gap-2"
                     >
                       <X className="h-4 w-4" />
                       Cancel
@@ -608,7 +609,7 @@ const fetchOrders = async () => {
                   <div className="mt-6 pt-6 border-t border-border">
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
+                      className="px-6 py-2 bg-primary text-primary-foreground dark:text-black rounded-lg hover:bg-primary/90 transition-colors flex items-center gap-2"
                     >
                       <Edit className="h-4 w-4" />
                       Edit Profile
@@ -667,11 +668,11 @@ const fetchOrders = async () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <Package className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-muted-foreground/80">You haven't placed any orders yet</p>
                   <a
                     href="/shop"
-                    className="inline-block mt-4 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    className="inline-block mt-4 px-6 py-2 bg-primary text-primary-foreground dark:text-black rounded-lg hover:bg-primary/90 transition-colors"
                   >
                     Start Shopping
                   </a>
@@ -690,7 +691,7 @@ const fetchOrders = async () => {
                     resetAddressForm()
                     setShowAddressForm(true)
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm"
+                  className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground dark:text-black rounded-lg hover:bg-primary/90 transition-colors text-sm"
                 >
                   <Plus className="h-4 w-4" />
                   Add Address
@@ -723,7 +724,7 @@ const fetchOrders = async () => {
                         type="text"
                         value={newAddress.street}
                         onChange={(e) => setNewAddress({ ...newAddress, street: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                         placeholder="123 Main St"
                         required
                         title="Enter your street address"
@@ -738,7 +739,7 @@ const fetchOrders = async () => {
                         type="text"
                         value={newAddress.city}
                         onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                         placeholder="New York"
                         required
                         title="Enter your city"
@@ -753,7 +754,7 @@ const fetchOrders = async () => {
                         type="text"
                         value={newAddress.state}
                         onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                         placeholder="NY"
                         required
                         title="Enter your state"
@@ -768,7 +769,7 @@ const fetchOrders = async () => {
                         type="text"
                         value={newAddress.zipCode}
                         onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                         placeholder="10001"
                         required
                         title="Enter your ZIP code"
@@ -782,7 +783,7 @@ const fetchOrders = async () => {
                         id="address-country"
                         value={newAddress.country}
                         onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                         title="Select your country"
                       >
                         <option value="US">United States</option>
@@ -801,7 +802,7 @@ const fetchOrders = async () => {
                         id="address-type"
                         value={newAddress.type}
                         onChange={(e) => setNewAddress({ ...newAddress, type: e.target.value as 'shipping' | 'billing' })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-background text-foreground"
                         title="Select address type"
                       >
                         <option value="shipping">Shipping</option>
@@ -825,14 +826,14 @@ const fetchOrders = async () => {
                   <div className="flex gap-3 mt-4 pt-4 border-t border-border">
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                      className="px-4 py-2 bg-primary text-primary-foreground dark:text-black rounded-lg hover:bg-primary/90 transition-colors"
                     >
                       {editingAddressId ? 'Update Address' : 'Save Address'}
                     </button>
                     <button
                       type="button"
                       onClick={resetAddressForm}
-                      className="px-4 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors"
+                      className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-foreground/80 rounded-lg hover:bg-muted transition-colors"
                     >
                       Cancel
                     </button>
@@ -846,7 +847,7 @@ const fetchOrders = async () => {
                   {addresses.map((address) => (
                     <div key={address.id} className="border border-border rounded-lg p-4 relative hover:shadow-sm transition-shadow">
                       {address.isDefault && (
-                        <span className="absolute top-2 right-2 text-xs bg-primary/20 text-blue-800 px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <span className="absolute top-2 right-2 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded-full flex items-center gap-1">
                           <Check className="h-3 w-3" /> Default
                         </span>
                       )}
@@ -865,11 +866,11 @@ const fetchOrders = async () => {
                       <p className="text-sm text-muted-foreground">{address.country}</p>
                       
                       {/* Action Buttons */}
-                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
+                      <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
                         {!address.isDefault && (
                           <button
                             onClick={() => handleSetDefaultAddress(address.id)}
-                            className="text-xs text-primary hover:text-blue-800 transition-colors flex items-center gap-1"
+                            className="text-xs text-primary hover:text-blue-800 dark:hover:text-blue-400 transition-colors flex items-center gap-1"
                           >
                             <Check className="h-3 w-3" />
                             Set Default
@@ -877,14 +878,14 @@ const fetchOrders = async () => {
                         )}
                         <button
                           onClick={() => handleEditAddress(address)}
-                          className="text-xs text-muted-foreground hover:text-gray-800 transition-colors flex items-center gap-1"
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                         >
                           <Edit className="h-3 w-3" />
                           Edit
                         </button>
                         <button
                           onClick={() => handleDeleteClick(address.id, address.street)}
-                          className="text-xs text-red-600 hover:text-red-800 transition-colors flex items-center gap-1"
+                          className="text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition-colors flex items-center gap-1"
                         >
                           <Trash2 className="h-3 w-3" />
                           Delete
@@ -895,14 +896,14 @@ const fetchOrders = async () => {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <MapPin className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <MapPin className="h-12 w-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                   <p className="text-muted-foreground/80">No addresses saved yet</p>
                   <button
                     onClick={() => {
                       resetAddressForm()
                       setShowAddressForm(true)
                     }}
-                    className="mt-4 inline-block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors"
+                    className="mt-4 inline-block px-6 py-2 bg-primary text-primary-foreground dark:text-black rounded-lg hover:bg-primary/90 transition-colors"
                   >
                     Add Your First Address
                   </button>
