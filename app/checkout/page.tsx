@@ -57,7 +57,7 @@ function CheckoutContent() {
           <p className="text-muted-foreground">Please sign in to complete your purchase</p>
           <Link
             href="/login"
-            className="inline-block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+            className="inline-block px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
           >
             Sign In
           </Link>
@@ -75,7 +75,7 @@ function CheckoutContent() {
           <p className="text-muted-foreground">Add some items to your cart before checking out.</p>
           <Link
             href="/shop"
-            className="inline-flex items-center gap-2 px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+            className="inline-flex items-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
           >
             Continue Shopping
             <ArrowLeft className="h-4 w-4" />
@@ -192,14 +192,13 @@ function CheckoutContent() {
           <div className="space-y-3">
             <Link
               href="/"
-              className="block px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+              className="block px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
             >
               Back to Home
             </Link>
-            {/* ✅ View Orders button redirects to profile with orders tab */}
             <Link
               href="/profile?tab=orders"
-              className="block px-6 py-2 border border-gray-300 text-foreground/80 rounded-lg hover:bg-muted transition-colors font-semibold"
+              className="block px-6 py-2 border border-border text-foreground/80 rounded-lg hover:bg-muted transition-colors font-semibold"
             >
               View Orders
             </Link>
@@ -210,7 +209,7 @@ function CheckoutContent() {
   }
 
   return (
-    <div className="min-h-screen bg-muted py-12">
+    <div className="min-h-screen bg-background py-12">
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-foreground mb-8">Checkout</h1>
 
@@ -223,12 +222,12 @@ function CheckoutContent() {
                   <div
                     className={`p-3 rounded-lg text-center font-semibold text-sm transition-colors ${
                       step === s
-                        ? 'bg-primary text-white'
+                        ? 'bg-primary text-primary-foreground'
                         : ['shipping', 'billing', 'payment'].includes(s) && 
                           ['shipping', 'billing', 'payment', 'confirm'].indexOf(s) <
                           ['shipping', 'billing', 'payment', 'confirm'].indexOf(step)
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-secondary text-muted-foreground/80'
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-secondary text-muted-foreground/60'
                     }`}
                   >
                     {s.charAt(0).toUpperCase() + s.slice(1)}
@@ -253,8 +252,9 @@ function CheckoutContent() {
                       placeholder="First Name"
                       value={formData.firstName}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       title="Enter your first name"
+                      suppressHydrationWarning
                     />
                   </div>
                   <div>
@@ -268,8 +268,9 @@ function CheckoutContent() {
                       placeholder="Last Name"
                       value={formData.lastName}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       title="Enter your last name"
+                      suppressHydrationWarning
                     />
                   </div>
                 </div>
@@ -284,8 +285,9 @@ function CheckoutContent() {
                     placeholder="Email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Enter your email address"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div>
@@ -299,8 +301,9 @@ function CheckoutContent() {
                     placeholder="Phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Enter your phone number"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div>
@@ -314,8 +317,9 @@ function CheckoutContent() {
                     placeholder="Street Address"
                     value={formData.address}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Enter your street address"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -330,8 +334,9 @@ function CheckoutContent() {
                       placeholder="City"
                       value={formData.city}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       title="Enter your city"
+                      suppressHydrationWarning
                     />
                   </div>
                   <div>
@@ -345,8 +350,9 @@ function CheckoutContent() {
                       placeholder="State"
                       value={formData.state}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       title="Enter your state"
+                      suppressHydrationWarning
                     />
                   </div>
                 </div>
@@ -361,8 +367,9 @@ function CheckoutContent() {
                     placeholder="ZIP Code"
                     value={formData.zipCode}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Enter your ZIP code"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div>
@@ -374,7 +381,7 @@ function CheckoutContent() {
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Select your country"
                   >
                     <option value="US">United States</option>
@@ -386,13 +393,13 @@ function CheckoutContent() {
                   </select>
                 </div>
                 {Object.entries(errors).map(([field, error]) => (
-                  <p key={field} className="text-sm text-red-600">
+                  <p key={field} className="text-sm text-destructive">
                     {error}
                   </p>
                 ))}
                 <button
                   onClick={handleNext}
-                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+                  className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
                 >
                   Continue to Billing
                 </button>
@@ -406,7 +413,7 @@ function CheckoutContent() {
                 <p className="text-muted-foreground">Same as shipping address</p>
                 <button
                   onClick={handleNext}
-                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+                  className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
                 >
                   Continue to Payment
                 </button>
@@ -428,8 +435,9 @@ function CheckoutContent() {
                     placeholder="Cardholder Name"
                     value={formData.cardName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Enter the cardholder name"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div>
@@ -443,8 +451,9 @@ function CheckoutContent() {
                     placeholder="4242 4242 4242 4242"
                     value={formData.cardNumber}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     title="Enter your card number"
+                    suppressHydrationWarning
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -459,8 +468,9 @@ function CheckoutContent() {
                       placeholder="MM/YY"
                       value={formData.cardExpiry}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       title="Enter the expiry date (MM/YY)"
+                      suppressHydrationWarning
                     />
                   </div>
                   <div>
@@ -474,19 +484,20 @@ function CheckoutContent() {
                       placeholder="CVC"
                       value={formData.cardCVC}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 rounded-lg border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       title="Enter the CVC code"
+                      suppressHydrationWarning
                     />
                   </div>
                 </div>
                 {Object.entries(errors).map(([field, error]) => (
-                  <p key={field} className="text-sm text-red-600">
+                  <p key={field} className="text-sm text-destructive">
                     {error}
                   </p>
                 ))}
                 <button
                   onClick={handleNext}
-                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors font-semibold"
+                  className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors font-semibold"
                 >
                   Review Order
                 </button>
@@ -511,7 +522,7 @@ function CheckoutContent() {
                 <button
                   onClick={handlePlaceOrder}
                   disabled={isProcessing}
-                  className="w-full py-2 px-4 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors font-semibold flex items-center justify-center gap-2"
+                  className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors font-semibold flex items-center justify-center gap-2"
                   title="Place your order"
                 >
                   {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
@@ -565,13 +576,13 @@ function CheckoutContent() {
   )
 }
 
-// ✅ Main page component with Suspense boundary (for future useSearchParams compatibility)
+// ✅ Main page component with Suspense boundary
 export default function CheckoutPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           <p className="text-muted-foreground">Loading checkout...</p>
         </div>
       </div>
